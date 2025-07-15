@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { WebSocketService } from '../../services/websocket.service';
 import { User, UserRole } from '../../models/user.model';
 
 @Component({
@@ -553,13 +554,48 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private webSocketService: WebSocketService
   ) {}
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      
+      // Connecter au WebSocket si l'utilisateur est authentifié
+      if (user) {
+        this.connectWebSocket();
+      }
     });
+  }
+
+  private connectWebSocket(): void {
+    // Connecter au WebSocket et s'abonner aux notifications appropriées
+    this.webSocketService.connect().subscribe(connected => {
+      if (connected) {
+        // Si l'utilisateur est un administrateur, s'abonner aux notifications admin
+        if (this.canAccessAdmin()) {
+          this.webSocketService.subscribe('/topic/admin/notifications', (message) => {
+            console.log('Notification admin reçue:', message);
+            // Ici vous pourriez ajouter une notification visuelle
+          });
+        }
+        
+        // S'abonner aux notifications personnelles
+        const userId = this.currentUser?.id;
+        if (userId) {
+          this.webSocketService.subscribe(`/user/${userId}/queue/notifications`, (message) => {
+            console.log('Notification personnelle reçue:', message);
+            // Ici vous pourriez ajouter une notification visuelle
+          });
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Se déconnecter du WebSocket
+    this.webSocketService.disconnect();
   }
 
   toggleSidebar(): void {
@@ -616,6 +652,7 @@ export class LayoutComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.webSocketService.disconnect();
     this.router.navigate(['/login']);
   }
 }

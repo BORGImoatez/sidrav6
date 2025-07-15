@@ -17,7 +17,9 @@ import tn.gov.ms.sidra.exception.BusinessException;
 import tn.gov.ms.sidra.mapper.UserMapper;
 import tn.gov.ms.sidra.repository.UserRepository;
 import tn.gov.ms.sidra.repository.StructureRepository;
+import tn.gov.ms.sidra.service.WebSocketService;
 import tn.gov.ms.sidra.security.JwtTokenProvider;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +34,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper;
     private final StructureRepository structureRepository;
+    private final PasswordEncoder passwordEncoder;
     private final WebSocketService webSocketService;
 
     private static final int MAX_LOGIN_ATTEMPTS = 3;

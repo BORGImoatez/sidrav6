@@ -87,20 +87,24 @@ export class AuthService {
   logout(): void {
     const token = localStorage.getItem('sidra_token');
     
-    if (token) {
-      // Appeler l'endpoint de déconnexion
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-      this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers }).subscribe({
-        next: () => console.log('Déconnexion côté serveur réussie'),
-        error: (error) => console.error('Erreur lors de la déconnexion côté serveur:', error)
-      });
-    }
+    // Appeler l'endpoint de déconnexion si un token existe
+    this.tryServerLogout(token);
 
     // Nettoyer le stockage local
     localStorage.removeItem('sidra_token');
     localStorage.removeItem('sidra_user');
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+  }
+
+  private tryServerLogout(token: string | null): void {
+    if (token) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers }).subscribe({
+        next: () => console.log('Déconnexion côté serveur réussie'),
+        error: (error) => console.error('Erreur lors de la déconnexion côté serveur:', error)
+      });
+    }
   }
 
   getCurrentUser(): User | null {

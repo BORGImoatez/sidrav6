@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../services/user.service';
 import { AuthService } from '../../../../services/auth.service';
-import { WebSocketService } from '../../../../services/websocket.service';
 import { UserRole } from '../../../../models/user.model';
+import { WebSocketService } from '../../../../services/websocket.service';
 
 @Component({
   selector: 'app-pending-users',
@@ -535,20 +535,25 @@ export class PendingUsersComponent implements OnInit {
   ngOnInit(): void {
     this.loadPendingUsers();
     this.loadStructures();
-    this.setupWebSocketConnection();
+    this.connectWebSocket();
   }
 
-  private setupWebSocketConnection(): void {
-    // Simuler la connexion WebSocket sans utiliser SockJS/Stomp
-    this.webSocketService.connect();
-    
-    // Simuler l'abonnement
-    this.webSocketService.subscribe('/topic/admin/notifications', (message) => {
-      if (message && message.type === 'NEW_USER_SIGNUP') {
-        // Recharger la liste des utilisateurs en attente
-        this.loadPendingUsers();
+  private connectWebSocket(): void {
+    this.webSocketService.connect().subscribe(connected => {
+      if (connected) {
+        this.webSocketService.subscribe('/topic/admin/notifications', (message) => {
+          if (message && message.type === 'NEW_USER_SIGNUP') {
+            // Recharger la liste des utilisateurs en attente
+            this.loadPendingUsers();
+          }
+        });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Se désabonner des WebSockets lors de la destruction du composant
+    this.webSocketService.unsubscribe('/topic/admin/notifications');
   }
 
   private loadPendingUsers(): void {
