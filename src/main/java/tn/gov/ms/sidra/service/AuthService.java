@@ -1,0 +1,186 @@
+package tn.gov.ms.sidra.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tn.gov.ms.sidra.dto.auth.*;
+import tn.gov.ms.sidra.dto.user.UserDto;
+import tn.gov.ms.sidra.entity.User;
+import tn.gov.ms.sidra.exception.BusinessException;
+import tn.gov.ms.sidra.mapper.UserMapper;
+import tn.gov.ms.sidra.repository.UserRepository;
+import tn.gov.ms.sidra.security.JwtTokenProvider;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthService {
+
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final OtpService otpService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
+
+    private static final int MAX_LOGIN_ATTEMPTS = 3;
+    private static final int BLOCK_DURATION_MINUTES = 15;
+
+    /**
+     * Authentification par email/mot de passe
+     */
+    @Transactional
+    public LoginResponse login(LoginRequest request, String ipAddress) {
+        log.info("Tentative de connexion pour l'email: {}", request.getEmail());
+
+        try {
+            // Rechercher l'utilisateur
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new BadCredentialsException("Identifiants invalides"));
+
+            // Vérifier si le compte est actif
+            if (!user.getActif()) {
+                log.warn("Tentative de connexion sur un compte inactif: {}", request.getEmail());
+                return new LoginResponse(false, "Compte désactivé", false, null, null, null);
+            }
+
+            // Vérifier si le compte est bloqué
+            if (user.getBloqueJusqu() != null && user.getBloqueJusqu().isAfter(LocalDateTime.now())) {
+                log.warn("Tentative de connexion sur un compte bloqué: {}", request.getEmail());
+                return new LoginResponse(false, "Compte temporairement bloqué", false, null,
+                        user.getBloqueJusqu(), null);
+            }
+
+            // Tenter l'authentification
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getMotDePasse())
+            );
+
+            // Authentification réussie - réinitialiser les tentatives
+            user.setTentativesConnexion(0);
+            user.setBloqueJusqu(null);
+            userRepository.save(user);
+
+            // Générer et envoyer le code OTP
+            otpService.generateAndStoreOtp(user, ipAddress);
+
+            log.info("Authentification réussie pour l'utilisateur: {}. Code OTP généré.", request.getEmail());
+            return new LoginResponse(true, "Code OTP envoyé par SMS", true, user.getId(), null, null);
+
+        } catch (AuthenticationException e) {
+            // Authentification échouée - gérer les tentatives
+            return handleFailedLogin(request.getEmail());
+        }
+    }
+
+    /**
+     * Vérification du code OTP et génération du token JWT
+     */
+    @Transactional
+    public OtpResponse verifyOtp(OtpRequest request) {
+        log.info("Vérification du code OTP pour l'utilisateur ID: {}", request.getUserId());
+
+        try {
+            // Rechercher l'utilisateur
+            User user = userRepository.findByIdWithStructure(request.getUserId())
+                    .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+            // Vérifier le code OTP
+            boolean isValidOtp = otpService.verifyOtp(user, request.getCode());
+
+            if (!isValidOtp) {
+                int remainingAttempts = otpService.getRemainingAttempts(user);
+                log.warn("Code OTP invalide pour l'utilisateur: {}. Tentatives restantes: {}",
+                        user.getEmail(), remainingAttempts);
+
+                return new OtpResponse(false, "Code OTP invalide", null, null, null, remainingAttempts);
+            }
+
+            // Code OTP valide - générer le token JWT
+            String token = jwtTokenProvider.generateToken(user);
+
+            // Mettre à jour la dernière connexion
+            user.setDerniereConnexion(LocalDateTime.now());
+            userRepository.save(user);
+
+            // Mapper l'utilisateur vers DTO
+            UserDto userDto = userMapper.toDto(user);
+
+            log.info("Code OTP vérifié avec succès pour l'utilisateur: {}. Token JWT généré.", user.getEmail());
+            return new OtpResponse(true, "Connexion réussie", token, userDto, null, null);
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors de la vérification OTP: {}", e.getMessage());
+            return new OtpResponse(false, e.getMessage(), null, null, null, null);
+        }
+    }
+
+    /**
+     * Renvoie un nouveau code OTP
+     */
+    @Transactional
+    public LoginResponse resendOtp(Long userId, String ipAddress) {
+        log.info("Demande de renvoi de code OTP pour l'utilisateur ID: {}", userId);
+
+        try {
+            User user = userRepository.findByIdWithStructure(userId)
+                    .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+            // Générer et envoyer un nouveau code OTP
+            otpService.resendOtp(user, ipAddress);
+
+            log.info("Nouveau code OTP généré et envoyé pour l'utilisateur: {}", user.getEmail());
+            return new LoginResponse(true, "Nouveau code OTP envoyé", true, userId, null, null);
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors du renvoi OTP: {}", e.getMessage());
+            return new LoginResponse(false, e.getMessage(), false, null, null, null);
+        }
+    }
+
+    /**
+     * Gère les échecs de connexion
+     */
+    private LoginResponse handleFailedLogin(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user != null) {
+            int attempts = user.getTentativesConnexion() + 1;
+            user.setTentativesConnexion(attempts);
+
+            if (attempts >= MAX_LOGIN_ATTEMPTS) {
+                // Bloquer le compte
+                LocalDateTime blockUntil = LocalDateTime.now().plusMinutes(BLOCK_DURATION_MINUTES);
+                user.setBloqueJusqu(blockUntil);
+                userRepository.save(user);
+
+                log.warn("Compte bloqué pour l'utilisateur: {} après {} tentatives", email, attempts);
+                return new LoginResponse(false, "Compte bloqué après trop de tentatives", false, null,
+                        blockUntil, 0);
+            } else {
+                userRepository.save(user);
+                int remaining = MAX_LOGIN_ATTEMPTS - attempts;
+                log.warn("Échec de connexion pour l'utilisateur: {}. Tentatives restantes: {}", email, remaining);
+                return new LoginResponse(false, "Identifiants invalides", false, null, null, remaining);
+            }
+        }
+
+        return new LoginResponse(false, "Identifiants invalides", false, null, null, null);
+    }
+
+    /**
+     * Déconnexion (invalidation du token côté client)
+     */
+    public void logout(String token) {
+        // Dans une implémentation complète, vous pourriez maintenir une liste noire des tokens
+        // ou utiliser Redis pour stocker les tokens invalidés
+        log.info("Déconnexion effectuée");
+    }
+}

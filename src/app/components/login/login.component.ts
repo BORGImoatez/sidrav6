@@ -1,0 +1,288 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../models/user.model';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="login-container">
+      <div class="login-card card">
+        <div class="login-header">
+          <div class="logo-placeholder">
+            <img  src="../../../assets/logo/logoMS.png" alt="">
+          </div>
+          
+          <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">
+            SIDRA
+          </h1>
+          
+          <p class="text-center text-gray-600 mb-8">
+            SYSTEME D’INFORMATION SUR LES DROGUES ET ADDICTIONS
+          </p>
+
+          <!-- Logos des partenaires -->
+          <div class="partners-logos">
+            <div class="logo-placeholder">
+              <img  src="../../../assets/logo/logos.png" alt="">
+            </div>
+           
+            
+          </div>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="login-form">
+          <div class="form-group">
+            <label for="email" class="form-label required">
+              Adresse email
+            </label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                [(ngModel)]="loginData.email"
+                class="form-input"
+                [class.error]="showError && !loginData.email"
+                placeholder="exemple@email.com"
+                required
+                [disabled]="isLoading"
+            >
+            <div *ngIf="showError && !loginData.email" class="form-error">
+              L'adresse email est requise
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="motDePasse" class="form-label required">
+              Mot de passe
+            </label>
+            <input
+                type="password"
+                id="motDePasse"
+                name="motDePasse"
+                [(ngModel)]="loginData.motDePasse"
+                class="form-input"
+                [class.error]="showError && !loginData.motDePasse"
+                placeholder="••••••••"
+                required
+                [disabled]="isLoading"
+            >
+            <div *ngIf="showError && !loginData.motDePasse" class="form-error">
+              Le mot de passe est requis
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="error-banner">
+            <span>{{ errorMessage }}</span>
+            <div *ngIf="remainingAttempts !== null" class="text-sm mt-1">
+              Tentatives restantes: {{ remainingAttempts }}
+            </div>
+            <div *ngIf="blockedUntil" class="text-sm mt-1">
+              Compte bloqué jusqu'à {{ blockedUntil | date:'HH:mm:ss' }}
+            </div>
+          </div>
+
+          <button
+              type="submit"
+              class="btn btn-primary btn-lg w-full"
+              [disabled]="isLoading || isBlocked"
+          >
+            <span *ngIf="!isLoading">Se connecter</span>
+            <span *ngIf="isLoading" class="flex items-center justify-center gap-2">
+              <div class="loading-spinner-sm"></div>
+              Connexion...
+            </span>
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <p class="text-xs text-gray-500 text-center">
+            Pour toute assistance technique, contactez votre administrateur
+          </p>
+          <p class="text-xs text-gray-400 text-center mt-2">
+            Demo: admin&#64;sidra.tn / Insp2025 | externe&#64;sidra.tn / 123456
+          </p>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+      padding: var(--spacing-4);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 480px;
+      padding: var(--spacing-8);
+      background: white;
+      box-shadow: var(--shadow-xl);
+      border: none;
+    }
+
+    .login-header {
+      margin-bottom: var(--spacing-8);
+    }
+
+    .partners-logos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-3);
+      margin-bottom: var(--spacing-6);
+      padding: var(--spacing-4);
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+    }
+
+    .logo-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+      background: white;
+        text-align: center;
+      transition: border-color 0.2s ease-in-out;
+    }
+
+    
+
+    .login-form {
+      margin-bottom: var(--spacing-6);
+    }
+
+    .error-banner {
+      background-color: var(--error-50);
+      border: 1px solid var(--error-200);
+      color: var(--error-700);
+      padding: var(--spacing-3) var(--spacing-4);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-4);
+      font-size: 14px;
+    }
+
+    .loading-spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .login-footer {
+      border-top: 1px solid var(--gray-200);
+      padding-top: var(--spacing-4);
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: var(--spacing-6);
+      }
+      
+      .partners-logos {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .logo-placeholder {
+        height: 50px;
+      }
+    }
+  `]
+})
+export class LoginComponent implements OnInit {
+  loginData: LoginRequest = {
+    email: '',
+    motDePasse: ''
+  };
+
+  isLoading = false;
+  showError = false;
+  errorMessage = '';
+  remainingAttempts: number | null = null;
+  blockedUntil: Date | null = null;
+  isBlocked = false;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Vérifier si l'utilisateur est déjà connecté
+    this.authService.isAuthenticated$.subscribe(isAuth => {
+      if (isAuth) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
+
+    // Vérifier les bloquages périodiquement
+    setInterval(() => {
+      if (this.blockedUntil && this.blockedUntil <= new Date()) {
+        this.blockedUntil = null;
+        this.isBlocked = false;
+        this.errorMessage = '';
+      }
+    }, 1000);
+  }
+
+  onSubmit(): void {
+    this.showError = false;
+    this.errorMessage = '';
+    this.remainingAttempts = null;
+
+    if (!this.loginData.email || !this.loginData.motDePasse) {
+      this.showError = true;
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.authService.login(this.loginData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        
+        if (response.success && response.requiresOtp && response.userId) {
+          // Rediriger vers la page OTP
+          this.router.navigate(['/otp'], { 
+            queryParams: { userId: response.userId }
+          });
+        } else if (!response.success) {
+          this.errorMessage = response.message;
+          this.remainingAttempts = response.remainingAttempts || null;
+          
+          if (response.blockedUntil) {
+            this.blockedUntil = response.blockedUntil;
+            this.isBlocked = true;
+          }
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        
+        // Gérer les erreurs de réponse du serveur
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+          this.remainingAttempts = error.error.remainingAttempts || null;
+          
+          if (error.error.blockedUntil) {
+            this.blockedUntil = new Date(error.error.blockedUntil);
+            this.isBlocked = true;
+          }
+        } else {
+          this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        }
+        
+        console.error('Erreur de connexion:', error);
+      }
+    });
+  }
+}
