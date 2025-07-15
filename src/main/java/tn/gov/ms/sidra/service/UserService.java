@@ -160,6 +160,65 @@ public class UserService {
     }
 
     /**
+     * Récupère tous les utilisateurs en attente d'activation
+     */
+    @Transactional(readOnly = true)
+    public List<UserDto> getPendingUsers() {
+        log.info("Récupération des utilisateurs en attente d'activation");
+        
+        List<User> pendingUsers = userRepository.findByRole(UserRole.PENDING);
+        
+        return pendingUsers.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Approuve un utilisateur en attente
+     */
+    @Transactional
+    public UserDto approveUser(Long id) {
+        log.info("Approbation de l'utilisateur avec l'ID: {}", id);
+        
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'ID: " + id));
+        
+        // Vérifier que l'utilisateur est bien en attente
+        if (user.getRole() != UserRole.PENDING) {
+            throw new BusinessException("Cet utilisateur n'est pas en attente d'activation");
+        }
+        
+        // Activer le compte et changer le rôle en UTILISATEUR
+        user.setRole(UserRole.UTILISATEUR);
+        user.setActif(true);
+        
+        User approvedUser = userRepository.save(user);
+        log.info("Utilisateur approuvé avec succès: {}", approvedUser.getId());
+        
+        return userMapper.toDto(approvedUser);
+    }
+    
+    /**
+     * Rejette un utilisateur en attente
+     */
+    @Transactional
+    public void rejectUser(Long id) {
+        log.info("Rejet de l'utilisateur avec l'ID: {}", id);
+        
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Utilisateur non trouvé avec l'ID: " + id));
+        
+        // Vérifier que l'utilisateur est bien en attente
+        if (user.getRole() != UserRole.PENDING) {
+            throw new BusinessException("Cet utilisateur n'est pas en attente d'activation");
+        }
+        
+        // Supprimer l'utilisateur
+        userRepository.delete(user);
+        log.info("Utilisateur rejeté et supprimé avec succès: {}", id);
+    }
+
+    /**
      * Suppression logique d'un utilisateur
      */
     @Transactional

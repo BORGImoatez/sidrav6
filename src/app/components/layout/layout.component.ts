@@ -113,6 +113,16 @@ import { User, UserRole } from '../../models/user.model';
               <span class="nav-icon">📈</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Rapports</span>
             </a>
+
+            <a 
+              routerLink="/admin/pending-users" 
+              routerLinkActive="active"
+              class="nav-item"
+              [title]="isSidebarCollapsed ? 'Demandes d\'inscription' : ''"
+            >
+              <span class="nav-icon">🔔</span>
+              <span class="nav-label" *ngIf="!isSidebarCollapsed">Demandes d'inscription</span>
+            </a>
           </div>
 
           <div class="nav-section">
@@ -598,6 +608,7 @@ export class LayoutComponent implements OnInit {
     if (url.includes('/admin/utilisateurs')) return 'Gestion des utilisateurs';
     if (url.includes('/admin/structures')) return 'Gestion des structures';
     if (url.includes('/admin/rapports')) return 'Rapports et statistiques';
+    if (url.includes('/admin/pending-users')) return 'Demandes d\'inscription';
     if (url.includes('/aide')) return 'Guide d\'utilisation';
     
     return 'SIDRA';

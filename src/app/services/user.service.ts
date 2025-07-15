@@ -214,6 +214,42 @@ export class UserService {
         );
     }
 
+    // Récupérer les utilisateurs en attente d'activation
+    getPendingUsers(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/users?role=PENDING`, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors du chargement des utilisateurs en attente:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    // Approuver un utilisateur en attente
+    approveUser(userId: number): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/users/${userId}/approve`, {}, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors de l\'approbation de l\'utilisateur:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    // Rejeter un utilisateur en attente
+    rejectUser(userId: number): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/users/${userId}/reject`, {}, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors du rejet de l\'utilisateur:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
     // Récupérer les informations de structure de l'utilisateur connecté
     getUserStructureInfo(): Observable<UserStructureInfo> {
         return this.http.get<UserStructureInfo>(`${this.apiUrl}/users/structure-info`, {

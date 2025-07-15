@@ -34,8 +34,20 @@ public class UserController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE')")
     public ResponseEntity<List<UserDto>> getUsers(@RequestParam(required = false) Long structureId) {
         log.info("Récupération des utilisateurs - structureId: {}", structureId);
-
+        
         List<UserDto> users = userService.getUsers(structureId);
+        return ResponseEntity.ok(users);
+    }
+    
+    /**
+     * Récupère tous les utilisateurs en attente d'activation
+     */
+    @GetMapping(params = "role=PENDING")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<List<UserDto>> getPendingUsers() {
+        log.info("Récupération des utilisateurs en attente d'activation");
+
+        List<UserDto> users = userService.getPendingUsers();
         return ResponseEntity.ok(users);
     }
 
@@ -125,5 +137,29 @@ public class UserController {
 
         UserStructureInfoDto structureInfo = userService.getUserStructureInfo(currentUser);
         return ResponseEntity.ok(structureInfo);
+    }
+    
+    /**
+     * Approuve un utilisateur en attente
+     */
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<UserDto> approveUser(@PathVariable Long id) {
+        log.info("Approbation de l'utilisateur avec l'ID: {}", id);
+        
+        UserDto approvedUser = userService.approveUser(id);
+        return ResponseEntity.ok(approvedUser);
+    }
+    
+    /**
+     * Rejette un utilisateur en attente
+     */
+    @PostMapping("/{id}/reject")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> rejectUser(@PathVariable Long id) {
+        log.info("Rejet de l'utilisateur avec l'ID: {}", id);
+        
+        userService.rejectUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
