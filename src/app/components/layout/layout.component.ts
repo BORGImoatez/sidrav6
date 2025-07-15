@@ -20,10 +20,10 @@ import { User, UserRole } from '../../models/user.model';
               Système d'Information<br>Drogue et Addiction
             </p>
           </div>
-          <button 
-            class="sidebar-toggle"
-            (click)="toggleSidebar()"
-            type="button"
+          <button
+              class="sidebar-toggle"
+              (click)="toggleSidebar()"
+              type="button"
           >
             <span class="toggle-icon" [class.rotated]="isSidebarCollapsed">
               ‹
@@ -34,45 +34,45 @@ import { User, UserRole } from '../../models/user.model';
         <nav class="sidebar-nav">
           <div class="nav-section">
             <h3 class="nav-section-title" *ngIf="!isSidebarCollapsed">Navigation</h3>
-            
-            <a 
-              routerLink="/dashboard" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Tableau de bord' : ''"
+
+            <a
+                routerLink="/dashboard"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Tableau de bord' : ''"
             >
               <span class="nav-icon">📊</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Tableau de bord</span>
             </a>
 
-            <a 
-              routerLink="/formulaire" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Nouveau formulaire' : ''"
-              *ngIf="!isExterne()"
+            <a
+                routerLink="/formulaire"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Nouveau formulaire' : ''"
+                *ngIf="!isExterne()"
 
             >
               <span class="nav-icon">📝</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Nouveau formulaire</span>
             </a>
 
-            <a 
-              routerLink="/mes-formulaires" 
-              routerLinkActive="active"
-              class="nav-item"
-              *ngIf="!isExterne()"
-              [title]="isSidebarCollapsed ? 'Mes formulaires' : ''"
+            <a
+                routerLink="/mes-formulaires"
+                routerLinkActive="active"
+                class="nav-item"
+                *ngIf="!isExterne()"
+                [title]="isSidebarCollapsed ? 'Mes formulaires' : ''"
             >
               <span class="nav-icon">📋</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Mes formulaires</span>
             </a>
 
-            <a 
-              routerLink="/offre-drogues" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Indicateurs offre de drogues' : ''"
+            <a
+                routerLink="/offre-drogues"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Indicateurs offre de drogues' : ''"
             >
               <span class="nav-icon">📊</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">
@@ -83,43 +83,43 @@ import { User, UserRole } from '../../models/user.model';
 
           <div class="nav-section" *ngIf="canAccessAdmin()">
             <h3 class="nav-section-title" *ngIf="!isSidebarCollapsed">Administration</h3>
-            
-            <a 
-              routerLink="/admin/utilisateurs" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Gestion des utilisateurs' : ''"
+
+            <a
+                routerLink="/admin/utilisateurs"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Gestion des utilisateurs' : ''"
             >
               <span class="nav-icon">👥</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Utilisateurs</span>
             </a>
 
-            <a 
-              routerLink="/admin/structures" 
-              routerLinkActive="active"
-              class="nav-item"
-              *ngIf="isSuperAdmin()"
-              [title]="isSidebarCollapsed ? 'Gestion des structures' : ''"
+            <a
+                routerLink="/admin/structures"
+                routerLinkActive="active"
+                class="nav-item"
+                *ngIf="isSuperAdmin()"
+                [title]="isSidebarCollapsed ? 'Gestion des structures' : ''"
             >
               <span class="nav-icon">🏢</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Structures</span>
             </a>
 
-            <a 
-              routerLink="/admin/rapports" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Rapports et statistiques' : ''"
+            <a
+                routerLink="/admin/rapports"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Rapports et statistiques' : ''"
             >
               <span class="nav-icon">📈</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Rapports</span>
             </a>
 
-            <a 
-              routerLink="/admin/pending-users" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Demandes d\'inscription' : ''"
+            <a
+                routerLink="/admin/pending-users"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Demandes d inscription' : ''"
             >
               <span class="nav-icon">🔔</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Demandes d'inscription</span>
@@ -128,12 +128,12 @@ import { User, UserRole } from '../../models/user.model';
 
           <div class="nav-section">
             <h3 class="nav-section-title" *ngIf="!isSidebarCollapsed">Support</h3>
-            
-            <a 
-              routerLink="/aide" 
-              routerLinkActive="active"
-              class="nav-item"
-              [title]="isSidebarCollapsed ? 'Guide d utilisation' : ''"
+
+            <a
+                routerLink="/aide"
+                routerLinkActive="active"
+                class="nav-item"
+                [title]="isSidebarCollapsed ? 'Guide d utilisation' : ''"
             >
               <span class="nav-icon">❓</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">Aide</span>
@@ -154,12 +154,12 @@ import { User, UserRole } from '../../models/user.model';
               </div>
             </div>
           </div>
-          
-          <button 
-            class="logout-btn"
-            (click)="logout()"
-            type="button"
-            [title]="isSidebarCollapsed ? 'Se déconnecter' : ''"
+
+          <button
+              class="logout-btn"
+              (click)="logout()"
+              type="button"
+              [title]="isSidebarCollapsed ? 'Se déconnecter' : ''"
           >
             <span class="nav-icon">🚪</span>
             <span class="nav-label" *ngIf="!isSidebarCollapsed">Déconnexion</span>
@@ -171,16 +171,16 @@ import { User, UserRole } from '../../models/user.model';
       <main class="main-content" [class.main-content-expanded]="isSidebarCollapsed">
         <header class="main-header">
           <div class="header-left">
-            <button 
-              class="mobile-menu-btn"
-              (click)="toggleSidebar()"
-              type="button"
+            <button
+                class="mobile-menu-btn"
+                (click)="toggleSidebar()"
+                type="button"
             >
               ☰
             </button>
             <h1 class="page-title">{{ getPageTitle() }}</h1>
           </div>
-          
+
           <div class="header-right">
             <div class="user-menu" *ngIf="currentUser">
               <div class="user-avatar-sm">{{ getUserInitials() }}</div>
@@ -553,15 +553,15 @@ export class LayoutComponent implements OnInit {
   isSidebarCollapsed = false;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
-    private webSocketService: WebSocketService
+      private authService: AuthService,
+      private router: Router,
+      private webSocketService: WebSocketService
   ) {}
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      
+
       // Connecter au WebSocket si l'utilisateur est authentifié
       if (user) {
         this.connectWebSocket();
@@ -580,7 +580,7 @@ export class LayoutComponent implements OnInit {
             // Ici vous pourriez ajouter une notification visuelle
           });
         }
-        
+
         // S'abonner aux notifications personnelles
         const userId = this.currentUser?.id;
         if (userId) {
@@ -622,7 +622,7 @@ export class LayoutComponent implements OnInit {
 
   getUserRoleLabel(): string {
     if (!this.currentUser) return '';
-    
+
     switch (this.currentUser.role) {
       case UserRole.SUPER_ADMIN:
         return 'Super Administrateur';
@@ -637,7 +637,7 @@ export class LayoutComponent implements OnInit {
 
   getPageTitle(): string {
     const url = this.router.url;
-    
+
     if (url.includes('/dashboard')) return 'Tableau de bord';
     if (url.includes('/formulaire')) return 'Nouveau formulaire';
     if (url.includes('/mes-formulaires')) return 'Mes formulaires';
@@ -646,7 +646,7 @@ export class LayoutComponent implements OnInit {
     if (url.includes('/admin/rapports')) return 'Rapports et statistiques';
     if (url.includes('/admin/pending-users')) return 'Demandes d\'inscription';
     if (url.includes('/aide')) return 'Guide d\'utilisation';
-    
+
     return 'SIDRA';
   }
 

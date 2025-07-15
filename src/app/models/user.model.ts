@@ -51,7 +51,8 @@ export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN_STRUCTURE = 'ADMIN_STRUCTURE',
   UTILISATEUR = 'UTILISATEUR',
-  EXTERNE = 'EXTERNE'
+  EXTERNE = 'EXTERNE',
+PENDING='PENDING'
 }
 
 export enum TypeStructure {

@@ -68,9 +68,22 @@ public class SecurityConfig {
                 // Endpoints d'administration
                 .requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN_STRUCTURE")
                 .requestMatchers("/users/create").hasAnyRole("SUPER_ADMIN", "ADMIN_STRUCTURE")
-                .requestMatchers("/structures/**").hasRole("SUPER_ADMIN")
-                
-                // Tous les autres endpoints nécessitent une authentification
+                .requestMatchers("/structures/**").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/ws/info").permitAll()
+                    .requestMatchers("/ws/websocket").permitAll()
+                    // Allow SockJS related endpoints
+                    .requestMatchers("/ws/*/*/websocket").permitAll()
+                    .requestMatchers("/ws/*/*/xhr_send").permitAll()
+                    .requestMatchers("/ws/*/*/xhr_streaming").permitAll()
+                    .requestMatchers("/ws/*/*/xhr").permitAll()
+                    .requestMatchers("/ws/*/*/jsonp").permitAll()
+                    .requestMatchers("/ws/*/*/jsonp_send").permitAll()
+                    .requestMatchers("/ws/*/*/eventsource").permitAll()
+                    .requestMatchers("/ws/*/*/htmlfile").permitAll()
+                    // Your other API endpoints
+
+                    // Tous les autres endpoints nécessitent une authentification
                 .anyRequest().authenticated()
             );
 

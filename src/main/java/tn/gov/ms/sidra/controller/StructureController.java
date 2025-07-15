@@ -30,7 +30,7 @@ public class StructureController {
      * Récupère toutes les structures
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR')")
+    //@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR')")
     public ResponseEntity<List<StructureDto>> getAllStructures(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,

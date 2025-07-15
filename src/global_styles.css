@@ -20,7 +20,12 @@
   --secondary-500: #6b7280;
   --secondary-600: #4b5563;
   --secondary-700: #374151;
-  
+  --error-100: #fee2e2;
+  --warning-100: #fef3c7;
+  --warning-700: #b45309;
+  --success-100: #d1fae5;
+  --success-700: #047857;
+  --secondary-100: #e5e7eb;
   /* États */
   --success-500: #10b981;
   --success-600: #059669;

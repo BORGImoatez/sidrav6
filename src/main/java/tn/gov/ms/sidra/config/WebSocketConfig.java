@@ -1,5 +1,6 @@
 package tn.gov.ms.sidra.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -8,7 +9,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -16,9 +16,10 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Principal;
 import java.util.Map;
-import java.util.Collections;
+import java.util.List;
 import tn.gov.ms.sidra.security.JwtTokenProvider;
 import tn.gov.ms.sidra.security.CustomUserDetailsService;
 
@@ -56,45 +57,93 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.setSendBufferSizeLimit(512 * 1024); // 512KB
         registration.setSendTimeLimit(20000); // 20 seconds
     }
-    
+
     private class JwtHandshakeInterceptor implements HandshakeInterceptor {
         @Override
-        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, 
-                                      WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-            if (request instanceof ServletServerHttpRequest) {
-                String token = request.getURI().getQuery();
-                if (token != null && token.startsWith("token=")) {
-                    token = token.substring(6); // Remove "token=" prefix
-                    
-                    if (jwtTokenProvider.validateToken(token)) {
-                        String username = jwtTokenProvider.getUsernameFromToken(token);
-                        Long userId = jwtTokenProvider.getUserIdFromToken(token);
-                        
-                        // Store user info in attributes for later use
-                        attributes.put("username", username);
-                        attributes.put("userId", userId);
-                        return true;
-                    }
+        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                       WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+
+            String token = extractTokenFromRequest(request);
+
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                try {
+                    String username = jwtTokenProvider.getUsernameFromToken(token);
+                    Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+                    // Load user details to get proper authorities
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                    // Create authentication token with proper authorities
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    // Set security context
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    // Store user info in attributes for later use
+                    attributes.put("username", username);
+                    attributes.put("userId", userId);
+                    attributes.put("authenticated", true);
+
+                    return true;
+                } catch (Exception e) {
+                    // Log authentication failure
+                    System.err.println("WebSocket authentication failed: " + e.getMessage());
+                    return false; // Reject connection on authentication failure
                 }
             }
-            return true; // Allow connection even without token, but it will be limited
+
+            // If no token or invalid token, reject the connection
+            return false;
         }
 
         @Override
-        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, 
-                                  WebSocketHandler wsHandler, Exception exception) {
-            // Nothing to do here
+        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                   WebSocketHandler wsHandler, Exception exception) {
+            // Clear security context after handshake
+            SecurityContextHolder.clearContext();
+        }
+
+        private String extractTokenFromRequest(ServerHttpRequest request) {
+            // Try to get token from query parameter first
+            String query = request.getURI().getQuery();
+            if (query != null && query.contains("token=")) {
+                String[] params = query.split("&");
+                for (String param : params) {
+                    if (param.startsWith("token=")) {
+                        return param.substring(6); // Remove "token=" prefix
+                    }
+                }
+            }
+
+            // Try to get token from Authorization header
+            if (request instanceof ServletServerHttpRequest) {
+                HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
+                String authHeader = servletRequest.getHeader("Authorization");
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    return authHeader.substring(7);
+                }
+            }
+
+            return null;
         }
     }
-    
+
     private class JwtHandshakeHandler extends DefaultHandshakeHandler {
         @Override
-        protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, 
-                                         Map<String, Object> attributes) {
+        protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler,
+                                          Map<String, Object> attributes) {
             String username = (String) attributes.get("username");
-            if (username != null) {
-                return new UsernamePasswordAuthenticationToken(username, null, 
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+            Boolean authenticated = (Boolean) attributes.get("authenticated");
+
+            if (username != null && Boolean.TRUE.equals(authenticated)) {
+                try {
+                    // Load user details to get proper authorities
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                } catch (Exception e) {
+                    System.err.println("Error loading user details in handshake: " + e.getMessage());
+                }
             }
             return null;
         }

@@ -24,7 +24,7 @@ export class AuthService {
   private loadStoredAuth(): void {
     const token = localStorage.getItem('sidra_token');
     const userData = localStorage.getItem('sidra_user');
-    
+
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
@@ -38,55 +38,55 @@ export class AuthService {
 
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, request)
-      .pipe(
-        tap(response => {
-          console.log('Réponse de connexion:', response);
-        }),
-        catchError(error => {
-          console.error('Erreur de connexion:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            tap(response => {
+              console.log('Réponse de connexion:', response);
+            }),
+            catchError(error => {
+              console.error('Erreur de connexion:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   verifyOtp(request: OtpRequest): Observable<OtpResponse> {
     return this.http.post<OtpResponse>(`${this.apiUrl}/auth/verify-otp`, request)
-      .pipe(
-        tap(response => {
-          if (response.success && response.token && response.user) {
-            // Stocker le token et les données utilisateur
-            localStorage.setItem('sidra_token', response.token);
-            localStorage.setItem('sidra_user', JSON.stringify(response.user));
-            
-            // Mettre à jour les subjects
-            this.currentUserSubject.next(response.user);
-            this.isAuthenticatedSubject.next(true);
-            
-            console.log('Authentification réussie:', response.user);
-          }
-        }),
-        catchError(error => {
-          console.error('Erreur de vérification OTP:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            tap(response => {
+              if (response.success && response.token && response.user) {
+                // Stocker le token et les données utilisateur
+                localStorage.setItem('sidra_token', response.token);
+                localStorage.setItem('sidra_user', JSON.stringify(response.user));
+
+                // Mettre à jour les subjects
+                this.currentUserSubject.next(response.user);
+                this.isAuthenticatedSubject.next(true);
+
+                console.log('Authentification réussie:', response.user);
+              }
+            }),
+            catchError(error => {
+              console.error('Erreur de vérification OTP:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   resendOtp(userId: number): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}/auth/resend-otp?userId=${userId}`, 
-      {}
+        `${this.apiUrl}/auth/resend-otp?userId=${userId}`,
+        {}
     ).pipe(
-      catchError(error => {
-        console.error('Erreur de renvoi OTP:', error);
-        return throwError(() => error);
-      })
+        catchError(error => {
+          console.error('Erreur de renvoi OTP:', error);
+          return throwError(() => error);
+        })
     );
   }
 
   logout(): void {
     const token = localStorage.getItem('sidra_token');
-    
+
     // Appeler l'endpoint de déconnexion si un token existe
     this.tryServerLogout(token);
 

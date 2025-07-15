@@ -25,11 +25,7 @@ import { LoginRequest } from '../../models/user.model';
             SYSTEME D’INFORMATION SUR LES DROGUES ET ADDICTIONS
           </p>
           
-          <div class="text-center mb-4">
-            <a routerLink="/signup" class="btn btn-secondary">
-              S'inscrire
-            </a>
-          </div>
+       
 
           <!-- Logos des partenaires -->
           <div class="partners-logos">
@@ -112,6 +108,11 @@ import { LoginRequest } from '../../models/user.model';
           <p class="text-xs text-gray-400 text-center mt-2">
             Demo: admin&#64;sidra.tn / Insp2025 | externe&#64;sidra.tn / 123456
           </p>
+          <div class="text-center mb-4">
+            <a routerLink="/signup" class="btn btn-secondary">
+              S'inscrire
+            </a>
+          </div>
         </div>
       </div>
     </div>

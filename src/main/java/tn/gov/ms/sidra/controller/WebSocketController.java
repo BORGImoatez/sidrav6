@@ -25,12 +25,12 @@ public class WebSocketController {
     @SendTo("/topic/pong")
     public Map<String, Object> ping() {
         log.info("Ping reçu d'un utilisateur");
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("type", "PONG");
         response.put("message", "Connexion WebSocket fonctionnelle");
         response.put("timestamp", System.currentTimeMillis());
-        
+
         return response;
     }
 
@@ -41,11 +41,11 @@ public class WebSocketController {
     @SendTo("/topic/admin/notifications")
     public Map<String, Object> adminBroadcast(Map<String, Object> message) {
         log.info("Message broadcast admin reçu");
-        
+
         Map<String, Object> response = new HashMap<>(message);
         response.put("sender", "system");
         response.put("timestamp", System.currentTimeMillis());
-        
+
         return response;
     }
 }

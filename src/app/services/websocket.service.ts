@@ -31,7 +31,7 @@ export class WebSocketService {
     this.socket.onopen = () => {
       console.log('WebSocket connection established');
       this.state.next(true);
-      
+
       // Envoyer un ping pour tester la connexion
       this.send('/app/ping', { message: 'Hello from client' });
     };
@@ -40,7 +40,7 @@ export class WebSocketService {
       try {
         const message = JSON.parse(event.data);
         const destination = message.destination;
-        
+
         // Traiter le message si un abonnement existe
         if (destination && this.subscriptions.has(destination)) {
           const callback = this.subscriptions.get(destination);
@@ -56,7 +56,7 @@ export class WebSocketService {
     this.socket.onclose = () => {
       console.log('WebSocket connection closed');
       this.state.next(false);
-      
+
       // Tenter de se reconnecter après 5 secondes
       setTimeout(() => this.connect(), 5000);
     };
@@ -81,7 +81,7 @@ export class WebSocketService {
   subscribe(destination: string, callback: (message: any) => void): void {
     // Enregistrer l'abonnement
     this.subscriptions.set(destination, callback);
-    
+
     // S'abonner au sujet
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.send('/app/subscribe', { destination });
@@ -94,7 +94,7 @@ export class WebSocketService {
   unsubscribe(destination: string): void {
     if (this.subscriptions.has(destination)) {
       this.subscriptions.delete(destination);
-      
+
       // Informer le serveur du désabonnement
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.send('/app/unsubscribe', { destination });

@@ -13,6 +13,7 @@ import tn.gov.ms.sidra.dto.auth.*;
 import tn.gov.ms.sidra.dto.user.UserDto;
 import tn.gov.ms.sidra.entity.User;
 import tn.gov.ms.sidra.entity.Structure;
+import tn.gov.ms.sidra.entity.UserRole;
 import tn.gov.ms.sidra.exception.BusinessException;
 import tn.gov.ms.sidra.mapper.UserMapper;
 import tn.gov.ms.sidra.repository.UserRepository;
@@ -190,28 +191,28 @@ public class AuthService {
         // ou utiliser Redis pour stocker les tokens invalidés
         log.info("Déconnexion effectuée");
     }
-    
+
     /**
      * Inscription d'un nouvel utilisateur (compte inactif)
      */
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         log.info("Traitement de la demande d'inscription pour: {}", request.getEmail());
-        
+
         // Vérifier l'unicité de l'email
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BusinessException("Cette adresse email est déjà utilisée");
         }
-        
+
         // Vérifier l'unicité du téléphone
         if (userRepository.existsByTelephone(request.getTelephone())) {
             throw new BusinessException("Ce numéro de téléphone est déjà utilisé");
         }
-        
+
         // Vérifier que la structure existe
         Structure structure = structureRepository.findByIdAndActifTrue(request.getStructureId())
                 .orElseThrow(() -> new BusinessException("Structure non trouvée"));
-        
+
         // Créer l'utilisateur avec le statut PENDING
         User user = new User();
         user.setNom(request.getNom());
@@ -224,13 +225,13 @@ public class AuthService {
         user.setActif(false); // Inactif par défaut
         user.setDateCreation(LocalDateTime.now());
         user.setTentativesConnexion(0);
-        
+
         User savedUser = userRepository.save(user);
         log.info("Utilisateur créé avec succès en attente d'activation: {}", savedUser.getId());
-        
+
         // Envoyer une notification aux administrateurs via WebSocket
         webSocketService.notifyAdmins("NEW_USER_SIGNUP", savedUser.getId());
-        
+
         return new SignupResponse(true, "Votre demande d'inscription a été envoyée avec succès. Un administrateur l'examinera prochainement.", savedUser.getId());
     }
 }

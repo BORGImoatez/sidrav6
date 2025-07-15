@@ -21,9 +21,5 @@ export const routes: Routes = [
   {
     path: 'pending-users',
     loadComponent: () => import('./components/pending-users/pending-users.component').then(m => m.PendingUsersComponent)
-  },
-  {
-    path: 'pending-users',
-    loadComponent: () => import('./components/pending-users/pending-users.component').then(m => m.PendingUsersComponent)
   }
 ];

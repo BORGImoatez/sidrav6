@@ -28,14 +28,14 @@ import { WebSocketService } from '../../../../services/websocket.service';
             <div class="filter-group">
               <label class="form-label">Rechercher</label>
               <input
-                type="text"
-                class="form-input"
-                placeholder="Nom, prénom ou email..."
-                [(ngModel)]="searchTerm"
-                (input)="filterUsers()"
+                  type="text"
+                  class="form-input"
+                  placeholder="Nom, prénom ou email..."
+                  [(ngModel)]="searchTerm"
+                  (input)="filterUsers()"
               >
             </div>
-            
+
             <div class="filter-group" *ngIf="isSuperAdmin()">
               <label class="form-label">Structure</label>
               <select class="form-select" [(ngModel)]="selectedStructureId" (change)="filterUsers()">
@@ -56,75 +56,75 @@ import { WebSocketService } from '../../../../services/websocket.service';
             Utilisateurs en attente d'activation ({{ filteredUsers.length }})
           </h3>
         </div>
-        
+
         <div class="card-body p-0" *ngIf="!isLoading; else loadingTemplate">
           <div class="table-responsive">
             <table class="users-table">
               <thead>
-                <tr>
-                  <th>Utilisateur</th>
-                  <th>Contact</th>
-                  <ng-container *ngIf="isSuperAdmin()">
-                    <th>Structure</th>
-                  </ng-container>
-                  <th>Date de demande</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Contact</th>
+                <ng-container *ngIf="isSuperAdmin()">
+                  <th>Structure</th>
+                </ng-container>
+                <th>Date de demande</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let user of filteredUsers" class="user-row">
-                  <td>
-                    <div class="user-info">
-                      <div class="user-avatar">
-                        {{ getUserInitials(user) }}
-                      </div>
-                      <div class="user-details">
-                        <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
-                        <div class="user-id">ID: {{ user.id }}</div>
-                      </div>
+              <tr *ngFor="let user of filteredUsers" class="user-row">
+                <td>
+                  <div class="user-info">
+                    <div class="user-avatar">
+                      {{ getUserInitials(user) }}
                     </div>
-                  </td>
-                  <td>
-                    <div class="contact-info">
-                      <div class="email">{{ user.email }}</div>
-                      <div class="phone" *ngIf="user.telephone">{{ user.telephone }}</div>
+                    <div class="user-details">
+                      <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
+                      <div class="user-id">ID: {{ user.id }}</div>
                     </div>
-                  </td>
-                  <ng-container *ngIf="isSuperAdmin()">
-                    <td>
-                      <div class="structure-info" *ngIf="user.structure">
-                        <div class="structure-name">{{ user.structure.nom }}</div>
-                        <div class="structure-type">{{ user.structure.type }}</div>
-                      </div>
-                      <span class="text-gray-500" *ngIf="!user.structure">-</span>
-                    </td>
-                  </ng-container>
+                  </div>
+                </td>
+                <td>
+                  <div class="contact-info">
+                    <div class="email">{{ user.email }}</div>
+                    <div class="phone" *ngIf="user.telephone">{{ user.telephone }}</div>
+                  </div>
+                </td>
+                <ng-container *ngIf="isSuperAdmin()">
                   <td>
-                    <div class="date-info">
-                      {{ user.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                    <div class="structure-info" *ngIf="user.structure">
+                      <div class="structure-name">{{ user.structure.nom }}</div>
+                      <div class="structure-type">{{ user.structure.type }}</div>
                     </div>
+                    <span class="text-gray-500" *ngIf="!user.structure">-</span>
                   </td>
-                  <td>
-                    <div class="actions-menu">
-                      <button 
+                </ng-container>
+                <td>
+                  <div class="date-info">
+                    {{ user.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="actions-menu">
+                    <button
                         class="btn btn-sm btn-success"
                         (click)="confirmApprove(user)"
                         type="button"
                         title="Approuver"
-                      >
-                        ✅
-                      </button>
-                      <button 
+                    >
+                      ✅
+                    </button>
+                    <button
                         class="btn btn-sm btn-danger"
                         (click)="confirmReject(user)"
                         type="button"
                         title="Rejeter"
-                      >
-                        ❌
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    >
+                      ❌
+                    </button>
+                  </div>
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -160,19 +160,19 @@ import { WebSocketService } from '../../../../services/websocket.service';
             </p>
           </div>
           <div class="modal-actions">
-            <button 
-              type="button" 
-              class="btn btn-secondary"
-              (click)="closeApproveModal()"
-              [disabled]="isProcessing"
+            <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeApproveModal()"
+                [disabled]="isProcessing"
             >
               Annuler
             </button>
-            <button 
-              type="button" 
-              class="btn btn-success"
-              (click)="approveUser()"
-              [disabled]="isProcessing"
+            <button
+                type="button"
+                class="btn btn-success"
+                (click)="approveUser()"
+                [disabled]="isProcessing"
             >
               <span *ngIf="!isProcessing">Approuver</span>
               <span *ngIf="isProcessing" class="flex items-center gap-2">
@@ -200,19 +200,19 @@ import { WebSocketService } from '../../../../services/websocket.service';
             </p>
           </div>
           <div class="modal-actions">
-            <button 
-              type="button" 
-              class="btn btn-secondary"
-              (click)="closeRejectModal()"
-              [disabled]="isProcessing"
+            <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeRejectModal()"
+                [disabled]="isProcessing"
             >
               Annuler
             </button>
-            <button 
-              type="button" 
-              class="btn btn-danger"
-              (click)="rejectUser()"
-              [disabled]="isProcessing"
+            <button
+                type="button"
+                class="btn btn-danger"
+                (click)="rejectUser()"
+                [disabled]="isProcessing"
             >
               <span *ngIf="!isProcessing">Rejeter</span>
               <span *ngIf="isProcessing" class="flex items-center gap-2">
@@ -490,16 +490,16 @@ import { WebSocketService } from '../../../../services/websocket.service';
       .filters-grid {
         grid-template-columns: 1fr;
       }
-      
+
       .users-table {
         font-size: 14px;
       }
-      
+
       .users-table th,
       .users-table td {
         padding: var(--spacing-3);
       }
-      
+
       .modal-content {
         margin: var(--spacing-2);
         max-width: none;
@@ -511,15 +511,15 @@ export class PendingUsersComponent implements OnInit {
   users: any[] = [];
   filteredUsers: any[] = [];
   structures: any[] = [];
-  
+
   // Filtres
   searchTerm = '';
   selectedStructureId = '';
-  
+
   // États
   isLoading = false;
   isProcessing = false;
-  
+
   // Modals
   showApproveModal = false;
   showRejectModal = false;
@@ -527,9 +527,9 @@ export class PendingUsersComponent implements OnInit {
   userToReject: any = null;
 
   constructor(
-    private userService: UserService,
-    private authService: AuthService,
-    private webSocketService: WebSocketService
+      private userService: UserService,
+      private authService: AuthService,
+      private webSocketService: WebSocketService
   ) {}
 
   ngOnInit(): void {
@@ -558,7 +558,7 @@ export class PendingUsersComponent implements OnInit {
 
   private loadPendingUsers(): void {
     this.isLoading = true;
-    
+
     this.userService.getPendingUsers().subscribe({
       next: (users) => {
         this.users = users;
@@ -585,14 +585,14 @@ export class PendingUsersComponent implements OnInit {
 
   filterUsers(): void {
     this.filteredUsers = this.users.filter(user => {
-      const matchesSearch = !this.searchTerm || 
-        user.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.prenom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
-      const matchesStructure = !this.selectedStructureId || 
-        user.structureId?.toString() === this.selectedStructureId;
-      
+      const matchesSearch = !this.searchTerm ||
+          user.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          user.prenom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchesStructure = !this.selectedStructureId ||
+          user.structureId?.toString() === this.selectedStructureId;
+
       return matchesSearch && matchesStructure;
     });
   }
@@ -609,9 +609,9 @@ export class PendingUsersComponent implements OnInit {
 
   approveUser(): void {
     if (!this.userToApprove) return;
-    
+
     this.isProcessing = true;
-    
+
     this.userService.approveUser(this.userToApprove.id).subscribe({
       next: () => {
         this.isProcessing = false;
@@ -637,9 +637,9 @@ export class PendingUsersComponent implements OnInit {
 
   rejectUser(): void {
     if (!this.userToReject) return;
-    
+
     this.isProcessing = true;
-    
+
     this.userService.rejectUser(this.userToReject.id).subscribe({
       next: () => {
         this.isProcessing = false;
