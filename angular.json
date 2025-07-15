@@ -23,6 +23,7 @@
             "assets": [              "src/assets"
             ],
             "styles": ["src/global_styles.css"],
+            "polyfills": ["src/polyfills.ts", "zone.js"],
             "scripts": []
           },
           "configurations": {
