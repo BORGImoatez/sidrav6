@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { OffreDroguesService } from '../../../../services/offre-drogues.service';
 import { AuthService } from '../../../../services/auth.service';
 import { OffreDrogues } from '../../../../models/offre-drogues.model';
@@ -9,7 +10,7 @@ import { UserRole } from '../../../../models/user.model';
 @Component({
   selector: 'app-detail-offre-drogues',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="detail-container">
       <div class="page-header">
@@ -83,7 +84,7 @@ import { UserRole } from '../../../../models/user.model';
         <!-- Section 1: Quantité de drogues saisies -->
         <div class="data-section card">
           <div class="card-header">
-            <h3 class="section-title">1. Quantité de drogues saisies selon la substance</h3>
+            <h3 class="section-title">1. Quantité de drogues saisies selon la substance (avec cumul)</h3>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -92,36 +93,52 @@ import { UserRole } from '../../../../models/user.model';
                   <tr>
                     <th>Nature de la substance saisie</th>
                     <th>Quantité saisie</th>
+                    <th>Dernière saisie ({{ lastEntry?.dateSaisie | date:'dd/MM/yyyy' }})</th>
+                    <th>Cumul</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>Cannabis (kg)</td>
                     <td>{{ data.quantitesDrogues.cannabis || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.cannabis || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.cannabis, lastEntry?.quantitesDrogues?.cannabis) }}</td>
                   </tr>
                   <tr>
                     <td>Comprimés Tableau A</td>
                     <td>{{ data.quantitesDrogues.comprimesTableauA || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.comprimesTableauA || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.comprimesTableauA, lastEntry?.quantitesDrogues?.comprimesTableauA) }}</td>
                   </tr>
                   <tr>
                     <td>Ecstasy (comprimé)</td>
                     <td>{{ data.quantitesDrogues.ecstasyComprime || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.ecstasyComprime || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyComprime, lastEntry?.quantitesDrogues?.ecstasyComprime) }}</td>
                   </tr>
                   <tr>
                     <td>Ecstasy (poudre ; en g)</td>
                     <td>{{ data.quantitesDrogues.ecstasyPoudre || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.ecstasyPoudre || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyPoudre, lastEntry?.quantitesDrogues?.ecstasyPoudre) }}</td>
                   </tr>
                   <tr>
                     <td>Subutex (comprimé)</td>
                     <td>{{ data.quantitesDrogues.subutex || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.subutex || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.subutex, lastEntry?.quantitesDrogues?.subutex) }}</td>
                   </tr>
                   <tr>
                     <td>Cocaïne (g)</td>
                     <td>{{ data.quantitesDrogues.cocaine || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.cocaine || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.cocaine, lastEntry?.quantitesDrogues?.cocaine) }}</td>
                   </tr>
                   <tr>
                     <td>Héroïne (g)</td>
                     <td>{{ data.quantitesDrogues.heroine || '-' }}</td>
+                    <td>{{ lastEntry?.quantitesDrogues?.heroine || '-' }}</td>
+                    <td>{{ getCumulativeValue(data.quantitesDrogues.heroine, lastEntry?.quantitesDrogues?.heroine) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -318,6 +335,25 @@ import { UserRole } from '../../../../models/user.model';
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Dernière saisie et cumul -->
+      <div *ngIf="!isLoading && data && lastEntry" class="info-section card">
+        <div class="card-header">
+          <h3 class="section-title">Comparaison avec la dernière saisie</h3>
+        </div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Dernière saisie</span>
+              <span class="info-value">{{ lastEntry.dateSaisie | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-item" *ngIf="lastEntry.structure">
+              <span class="info-label">Structure</span>
+              <span class="info-value">{{ lastEntry.structure.nom }}</span>
             </div>
           </div>
         </div>
@@ -522,6 +558,7 @@ export class DetailOffreDroguesComponent implements OnInit {
   data: any = null;
   isLoading = false;
   itemId: number | null = null;
+  lastEntry: any = null;
 
   constructor(
     private router: Router,
@@ -543,17 +580,43 @@ export class DetailOffreDroguesComponent implements OnInit {
     if (!this.itemId) return;
 
     this.isLoading = true;
-    
+
     this.offreDroguesService.getById(this.itemId).subscribe({
       next: (data) => {
         this.data = data;
         this.isLoading = false;
+        // Charger la dernière saisie pour comparaison
+        this.loadLastEntry();
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données:', error);
         this.isLoading = false;
       }
     });
+  }
+
+  private loadLastEntry(): void {
+    if (!this.data || !this.data.dateSaisie) return;
+    
+    // Récupérer la dernière saisie avant celle-ci
+    this.offreDroguesService.getLastEntryBefore(this.data.dateSaisie, this.data.id).subscribe({
+      next: (lastEntry) => {
+        this.lastEntry = lastEntry;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de la dernière saisie:', error);
+      }
+    });
+  }
+
+  getCumulativeValue(current: number | null, previous: number | null): string {
+    if (current === null && previous === null) return '-';
+    
+    const currentValue = current || 0;
+    const previousValue = previous || 0;
+    const sum = currentValue + previousValue;
+    
+    return sum.toString();
   }
 
   isExterne(): boolean {

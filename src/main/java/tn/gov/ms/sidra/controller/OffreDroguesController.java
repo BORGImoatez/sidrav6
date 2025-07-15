@@ -34,9 +34,9 @@ public class OffreDroguesController {
     @GetMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
     public ResponseEntity<List<OffreDroguesListDto>> getAllOffresDrogues(
-            @AuthenticationPrincipal User currentUser,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        @AuthenticationPrincipal User currentUser,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         
         log.info("Récupération des données d'offre de drogues - utilisateur: {}, période: {} - {}", 
                 currentUser.getEmail(), startDate, endDate);
@@ -50,6 +50,23 @@ public class OffreDroguesController {
         }
 
         return ResponseEntity.ok(offresDrogues);
+    }
+
+    /**
+     * Récupère la dernière donnée d'offre de drogues avant une date spécifique
+     */
+    @GetMapping("/last-before")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
+    public ResponseEntity<OffreDroguesDto> getLastEntryBefore(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+        @RequestParam Long currentId,
+        @AuthenticationPrincipal User currentUser) {
+        
+        log.info("Récupération de la dernière donnée d'offre de drogues avant la date: {} (excluant ID: {})", 
+                date, currentId);
+        
+        OffreDroguesDto lastEntry = offreDroguesService.getLastEntryBefore(date, currentId, currentUser);
+        return ResponseEntity.ok(lastEntry);
     }
 
     /**

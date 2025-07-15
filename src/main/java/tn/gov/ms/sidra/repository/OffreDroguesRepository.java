@@ -21,6 +21,9 @@ public interface OffreDroguesRepository extends JpaRepository<OffreDrogues, Long
 
     List<OffreDrogues> findByStructureIdOrderByDateSaisieDesc(Long structureId);
 
+    @Query("SELECT o FROM OffreDrogues o WHERE o.dateSaisie < :date AND o.id != :currentId ORDER BY o.dateSaisie DESC")
+    List<OffreDrogues> findLastEntryBefore(@Param("date") LocalDate date, @Param("currentId") Long currentId);
+
     @Query("SELECT o FROM OffreDrogues o LEFT JOIN FETCH o.structure s LEFT JOIN FETCH s.gouvernorat LEFT JOIN FETCH o.utilisateur ORDER BY o.dateSaisie DESC")
     List<OffreDrogues> findAllByOrderByDateSaisieDesc();
 

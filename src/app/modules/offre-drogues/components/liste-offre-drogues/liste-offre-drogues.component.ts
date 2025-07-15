@@ -40,7 +40,7 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
       <!-- Filtres -->
       <div class="filters-section card" *ngIf="!isExterne()">
         <div class="card-body">
-          <div class="filters-grid">
+          <div class="filters-grid mb-4">
             <div class="filter-group">
               <label class="form-label">Rechercher</label>
               <input
@@ -72,6 +72,39 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
                 <option value="quarter">Ce trimestre</option>
                 <option value="year">Cette année</option>
               </select>
+            </div>
+          </div>
+          
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="form-label">Période personnalisée</label>
+              <div class="date-range-picker">
+                <div class="date-input-group">
+                  <label class="date-label">Du</label>
+                  <input
+                    type="date"
+                    class="form-input"
+                    [(ngModel)]="startDate"
+                    (change)="filterByCustomPeriod()"
+                  >
+                </div>
+                <div class="date-input-group">
+                  <label class="date-label">Au</label>
+                  <input
+                    type="date"
+                    class="form-input"
+                    [(ngModel)]="endDate"
+                    (change)="filterByCustomPeriod()"
+                  >
+                </div>
+                <button 
+                  class="btn btn-sm btn-primary"
+                  (click)="filterByCustomPeriod()"
+                  type="button"
+                >
+                  Filtrer
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -222,6 +255,23 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
 
     .header-content {
       flex: 1;
+    }
+    
+    .date-range-picker {
+      display: flex;
+      gap: var(--spacing-3);
+      align-items: flex-end;
+    }
+    
+    .date-label {
+      font-size: 12px;
+      color: var(--gray-600);
+      margin-bottom: var(--spacing-1);
+      display: block;
+    }
+    
+    .mb-4 {
+      margin-bottom: var(--spacing-4);
     }
 
     .page-title {
@@ -453,6 +503,11 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
         margin: var(--spacing-2);
         max-width: none;
       }
+      
+      .date-range-picker {
+        flex-direction: column;
+        gap: var(--spacing-2);
+      }
     }
   `]
 })
@@ -463,6 +518,8 @@ export class ListeOffreDroguesComponent implements OnInit {
   // Filtres
   searchTerm = '';
   selectedDate = '';
+  startDate = '';
+  endDate = '';
   selectedPeriod = '';
   
   // États
@@ -493,6 +550,26 @@ export class ListeOffreDroguesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  filterByCustomPeriod(): void {
+    if (!this.startDate || !this.endDate) {
+      return;
+    }
+    
+    this.isLoading = true;
+    
+    this.offreDroguesService.getByPeriod(this.startDate, this.endDate).subscribe({
+      next: (data) => {
+        this.data = data;
+        this.filterData();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des données par période:', error);
         this.isLoading = false;
       }
     });
