@@ -10,7 +10,7 @@ export class WebSocketService {
   private socket: WebSocket | null = null;
   private state = new BehaviorSubject<boolean>(false);
   private subscriptions: Map<string, (message: any) => void> = new Map();
-  private serverUrl = (environment.apiUrl || 'http://localhost:9090/api').replace('http', 'ws') + '/ws';
+  private serverUrl = (environment.apiUrl || 'http://localhost:9090/api').replace('http', 'ws') + '/ws?token=';
 
   constructor(private authService: AuthService) {}
 
@@ -25,17 +25,15 @@ export class WebSocketService {
     }
 
     // Créer une nouvelle connexion WebSocket
-    this.socket = new WebSocket(this.serverUrl);
+    const token = localStorage.getItem('sidra_token') || '';
+    this.socket = new WebSocket(this.serverUrl + token);
 
     this.socket.onopen = () => {
       console.log('WebSocket connection established');
       this.state.next(true);
       
-      // Authentifier la connexion
-      const token = localStorage.getItem('sidra_token');
-      if (token) {
-        this.send('/app/auth', { token });
-      }
+      // Envoyer un ping pour tester la connexion
+      this.send('/app/ping', { message: 'Hello from client' });
     };
 
     this.socket.onmessage = (event) => {
