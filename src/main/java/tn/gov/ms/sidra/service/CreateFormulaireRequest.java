@@ -59,9 +59,11 @@ public class CreateFormulaireRequest {
     private Boolean consultationAnterieure;
     private String dateConsultationAnterieure;
     private String motifConsultationAnterieure;
-    private  String motifConsultationAnterieurePrecision;
+    private String motifConsultationAnterieurePrecision;
     private String causeRecidive;
+    private String causeRecidivePrecision;
     private String causeEchecSevrage;
+    private String causeEchecSevragePrecision;
     private String situationFamiliale;
     private String situationFamilialeAutre;
     private String logement30Jours;

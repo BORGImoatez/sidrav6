@@ -134,6 +134,9 @@ public class FormulaireService {
         log.info("Création d'un nouveau formulaire pour la date: {} par l'utilisateur: {}",
                 request.getDateConsultation(), currentUser.getEmail());
 
+        // Log de la requête pour le débogage
+        log.debug("Requête de création de formulaire: {}", request);
+
         // Vérifier les permissions
         if (currentUser.getRole() != UserRole.UTILISATEUR) {
             throw new BusinessException("Seuls les utilisateurs peuvent créer des formulaires");
@@ -190,6 +193,9 @@ public class FormulaireService {
     @Transactional
     public FormulaireDto updateFormulaire(Long id, CreateFormulaireRequest request, User currentUser) {
         log.info("Mise à jour du formulaire avec l'ID: {} par l'utilisateur: {}", id, currentUser.getEmail());
+
+        // Log de la requête pour le débogage
+        log.debug("Requête de mise à jour de formulaire: {}", request);
 
         // Récupérer le formulaire existant
         Formulaire existingFormulaire = formulaireRepository.findById(id)
@@ -505,6 +511,7 @@ public class FormulaireService {
             }
         } catch (Exception e) {
             log.error("Erreur lors de la création des entités liées", e);
+            log.error("Détails de la requête: {}", request);
             throw new BusinessException("Erreur lors de la création des entités liées: " + e.getMessage());
         }
     }
