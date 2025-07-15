@@ -17,6 +17,7 @@
     "@angular/router": "^17.2.0",
     "@stomp/stompjs": "^7.1.1",
     "@types/uuid": "^10.0.0",
+    "buffer": "^6.0.3",
     "chart.js": "^4.4.0",
     "ng2-pdfjs-viewer": "^17.0.1",
     "ngx-doc-viewer": "^15.0.1",
