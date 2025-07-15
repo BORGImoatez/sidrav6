@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import tn.gov.ms.sidra.entity.User;
@@ -23,9 +22,9 @@ public class WebSocketController {
      * Endpoint pour tester la connexion WebSocket
      */
     @MessageMapping("/ping")
-    @SendToUser("/queue/pong")
-    public Map<String, Object> ping(Principal principal) {
-        log.info("Ping reçu de l'utilisateur: {}", principal.getName());
+    @SendTo("/topic/pong")
+    public Map<String, Object> ping() {
+        log.info("Ping reçu d'un utilisateur");
         
         Map<String, Object> response = new HashMap<>();
         response.put("type", "PONG");
@@ -40,12 +39,11 @@ public class WebSocketController {
      */
     @MessageMapping("/admin/broadcast")
     @SendTo("/topic/admin/notifications")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public Map<String, Object> adminBroadcast(Map<String, Object> message, @AuthenticationPrincipal User user) {
-        log.info("Message broadcast admin reçu de: {}", user.getEmail());
+    public Map<String, Object> adminBroadcast(Map<String, Object> message) {
+        log.info("Message broadcast admin reçu");
         
         Map<String, Object> response = new HashMap<>(message);
-        response.put("sender", user.getEmail());
+        response.put("sender", "system");
         response.put("timestamp", System.currentTimeMillis());
         
         return response;
