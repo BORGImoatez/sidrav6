@@ -22,7 +22,7 @@ import { LoginRequest } from '../../models/user.model';
           </h1>
           
           <p class="text-center text-gray-600 mb-8">
-            SYSTEME D’INFORMATION SUR LES DROGUES ET ADDICTIONS
+            SYSTEME D'INFORMATION SUR LES DROGUES ET ADDICTIONS
           </p>
           
        
@@ -108,6 +108,11 @@ import { LoginRequest } from '../../models/user.model';
           <p class="text-xs text-gray-400 text-center mt-2">
             Demo: admin&#64;sidra.tn / Insp2025 | externe&#64;sidra.tn / 123456
           </p>
+          <div class="text-center mt-4">
+            <a routerLink="/forgot-password" class="text-primary-600 hover:underline">
+              Mot de passe oublié ?
+            </a>
+          </div>
           <div class="text-center mb-4">
             <a routerLink="/signup" class="btn btn-secondary">
               S'inscrire

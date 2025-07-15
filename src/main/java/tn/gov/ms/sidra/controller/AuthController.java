@@ -60,6 +60,46 @@ public class AuthController {
     }
 
     /**
+     * Demande de réinitialisation de mot de passe
+     */
+    @PostMapping("/forgot-password/request")
+    public ResponseEntity<LoginResponse> requestPasswordReset(@RequestBody ForgotPasswordRequest request,
+                                                            HttpServletRequest httpRequest) {
+        String ipAddress = getClientIpAddress(httpRequest);
+        LoginResponse response = authService.requestPasswordReset(request.getTelephone(), ipAddress);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Vérification du code OTP pour réinitialisation de mot de passe
+     */
+    @PostMapping("/forgot-password/verify-otp")
+    public ResponseEntity<OtpResponse> verifyPasswordResetOtp(@RequestBody OtpRequest request) {
+        OtpResponse response = authService.verifyPasswordResetOtp(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Renvoyer un code OTP pour réinitialisation de mot de passe
+     */
+    @PostMapping("/forgot-password/resend-otp")
+    public ResponseEntity<LoginResponse> resendPasswordResetOtp(@RequestBody ResendOtpRequest request,
+                                                              HttpServletRequest httpRequest) {
+        String ipAddress = getClientIpAddress(httpRequest);
+        LoginResponse response = authService.resendPasswordResetOtp(request.getUserId(), ipAddress);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Réinitialisation du mot de passe
+     */
+    @PostMapping("/forgot-password/reset")
+    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
+        ResetPasswordResponse response = authService.resetPassword(request.getUserId(), request.getNewPassword());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Vérification du statut d'authentification
      */
     @GetMapping("/status")

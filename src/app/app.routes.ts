@@ -17,6 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/otp/otp.component').then(m => m.OtpComponent)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./components/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
     path: 'signup',
     loadComponent: () => import('./components/signup/signup.component').then(m => m.SignupComponent)
   },

@@ -42,6 +42,137 @@ public class AuthService {
     private static final int BLOCK_DURATION_MINUTES = 15;
 
     /**
+     * Demande de réinitialisation de mot de passe
+     */
+    @Transactional
+    public LoginResponse requestPasswordReset(String telephone, String ipAddress) {
+        log.info("Demande de réinitialisation de mot de passe pour le téléphone: {}", telephone);
+
+        try {
+            // Rechercher l'utilisateur par téléphone
+            User user = userRepository.findByTelephone(telephone)
+                    .orElseThrow(() -> new BusinessException("Aucun compte associé à ce numéro de téléphone"));
+
+            // Vérifier si le compte est actif
+            if (!user.getActif()) {
+                log.warn("Tentative de réinitialisation sur un compte inactif: {}", telephone);
+                return new LoginResponse(false, "Compte désactivé", false, null, null, null);
+            }
+
+            // Vérifier si le compte est bloqué
+            if (user.getBloqueJusqu() != null && user.getBloqueJusqu().isAfter(LocalDateTime.now())) {
+                log.warn("Tentative de réinitialisation sur un compte bloqué: {}", telephone);
+                return new LoginResponse(false, "Compte temporairement bloqué", false, null,
+                        user.getBloqueJusqu(), null);
+            }
+
+            // Générer et envoyer le code OTP
+            otpService.generateAndStoreOtp(user, ipAddress);
+
+            log.info("Code OTP généré pour réinitialisation de mot de passe: {}", telephone);
+            return new LoginResponse(true, "Code OTP envoyé par SMS", true, user.getId(), null, null);
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors de la demande de réinitialisation: {}", e.getMessage());
+            return new LoginResponse(false, e.getMessage(), false, null, null, null);
+        }
+    }
+
+    /**
+     * Vérification du code OTP pour réinitialisation de mot de passe
+     */
+    @Transactional
+    public OtpResponse verifyPasswordResetOtp(OtpRequest request) {
+        log.info("Vérification du code OTP pour réinitialisation de mot de passe, utilisateur ID: {}", request.getUserId());
+
+        try {
+            // Rechercher l'utilisateur
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+            // Vérifier le code OTP
+            boolean isValidOtp = otpService.verifyOtp(user, request.getCode());
+
+            if (!isValidOtp) {
+                int remainingAttempts = otpService.getRemainingAttempts(user);
+                log.warn("Code OTP invalide pour l'utilisateur: {}. Tentatives restantes: {}",
+                        user.getEmail(), remainingAttempts);
+
+                return new OtpResponse(false, "Code OTP invalide", null, null, null, remainingAttempts);
+            }
+
+            log.info("Code OTP vérifié avec succès pour réinitialisation de mot de passe: {}", user.getEmail());
+            return new OtpResponse(true, "Code OTP vérifié avec succès", null, null, null, null);
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors de la vérification OTP: {}", e.getMessage());
+            return new OtpResponse(false, e.getMessage(), null, null, null, null);
+        }
+    }
+
+    /**
+     * Renvoie un nouveau code OTP pour réinitialisation de mot de passe
+     */
+    @Transactional
+    public LoginResponse resendPasswordResetOtp(Long userId, String ipAddress) {
+        log.info("Demande de renvoi de code OTP pour réinitialisation de mot de passe, utilisateur ID: {}", userId);
+
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+            // Générer et envoyer un nouveau code OTP
+            otpService.resendOtp(user, ipAddress);
+
+            log.info("Nouveau code OTP généré et envoyé pour réinitialisation de mot de passe: {}", user.getEmail());
+            return new LoginResponse(true, "Nouveau code OTP envoyé", true, userId, null, null);
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors du renvoi OTP: {}", e.getMessage());
+            return new LoginResponse(false, e.getMessage(), false, null, null, null);
+        }
+    }
+
+    /**
+     * Réinitialisation du mot de passe
+     */
+    @Transactional
+    public ResetPasswordResponse resetPassword(Long userId, String newPassword) {
+        log.info("Réinitialisation du mot de passe pour l'utilisateur ID: {}", userId);
+
+        try {
+            // Rechercher l'utilisateur
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BusinessException("Utilisateur non trouvé"));
+
+            // Vérifier que le mot de passe respecte les critères de sécurité
+            if (!isPasswordValid(newPassword)) {
+                throw new BusinessException("Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial");
+            }
+
+            // Mettre à jour le mot de passe
+            user.setMotDePasse(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+
+            log.info("Mot de passe réinitialisé avec succès pour l'utilisateur: {}", user.getEmail());
+            return new ResetPasswordResponse(true, "Mot de passe réinitialisé avec succès");
+
+        } catch (BusinessException e) {
+            log.error("Erreur lors de la réinitialisation du mot de passe: {}", e.getMessage());
+            return new ResetPasswordResponse(false, e.getMessage());
+        }
+    }
+
+    /**
+     * Vérifie que le mot de passe respecte les critères de sécurité
+     */
+    private boolean isPasswordValid(String password) {
+        // Au moins 8 caractères, une majuscule, un chiffre et un caractère spécial
+        String pattern = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$";
+        return password.matches(pattern);
+    }
+
+    /**
      * Authentification par email/mot de passe
      */
     @Transactional
