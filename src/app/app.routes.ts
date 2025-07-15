@@ -17,6 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/otp/otp.component').then(m => m.OtpComponent)
   },
   {
+    path: 'signup',
+    loadComponent: () => import('./components/signup/signup.component').then(m => m.SignupComponent)
+  },
+  {
     path: '',
     loadComponent: () => import('./components/layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [AuthGuard],

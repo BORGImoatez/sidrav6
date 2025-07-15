@@ -50,6 +50,7 @@ import { User, UserRole, Structure, TypeStructure } from '../../../../models/use
                 <option value="SUPER_ADMIN" *ngIf="isSuperAdmin()">Super Administrateur</option>
                 <option value="ADMIN_STRUCTURE">Administrateur Structure</option>
                 <option value="UTILISATEUR">Utilisateur</option>
+                <option value="PENDING">En attente d'activation</option>
               </select>
             </div>
 
@@ -938,6 +939,8 @@ export class UtilisateursComponent implements OnInit {
         return 'Utilisateur';
       case UserRole.EXTERNE:
         return 'Externe';
+      case 'PENDING':
+        return 'En attente';
       default:
         return role;
     }
@@ -951,6 +954,8 @@ export class UtilisateursComponent implements OnInit {
         return 'admin-structure';
       case UserRole.UTILISATEUR:
         return 'utilisateur';
+      case 'PENDING':
+        return 'pending';
       case UserRole.EXTERNE:
         return 'externe';
       default:

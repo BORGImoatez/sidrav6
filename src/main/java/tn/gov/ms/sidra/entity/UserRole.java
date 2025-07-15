@@ -7,7 +7,8 @@ public enum UserRole {
     SUPER_ADMIN("Super Administrateur"),
     ADMIN_STRUCTURE("Administrateur Structure"),
     UTILISATEUR("Utilisateur"),
-    EXTERNE("Utilisateur Externe");
+    EXTERNE("Utilisateur Externe"),
+    PENDING("En attente d'activation");
 
     private final String label;
 

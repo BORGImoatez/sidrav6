@@ -66,6 +66,17 @@ public class AuthController {
     public ResponseEntity<String> checkAuthStatus() {
         return ResponseEntity.ok("Authentifié");
     }
+    
+    /**
+     * Inscription d'un nouvel utilisateur (compte inactif)
+     */
+    @PostMapping("/signup")
+    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
+        log.info("Demande d'inscription pour l'email: {}", request.getEmail());
+        
+        SignupResponse response = authService.signup(request);
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * Extrait l'adresse IP du client

@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/user.model';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="login-container">
       <div class="login-card card">
@@ -24,6 +24,12 @@ import { LoginRequest } from '../../models/user.model';
           <p class="text-center text-gray-600 mb-8">
             SYSTEME D’INFORMATION SUR LES DROGUES ET ADDICTIONS
           </p>
+          
+          <div class="text-center mb-4">
+            <a routerLink="/signup" class="btn btn-secondary">
+              S'inscrire
+            </a>
+          </div>
 
           <!-- Logos des partenaires -->
           <div class="partners-logos">

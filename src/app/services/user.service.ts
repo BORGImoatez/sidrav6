@@ -225,4 +225,26 @@ export class UserService {
             })
         );
     }
+
+    // Récupérer les structures par type
+    getStructuresByType(type: TypeStructure): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/structures?type=${type}`, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors du chargement des structures par type:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    // Inscription d'un nouvel utilisateur (compte inactif)
+    signup(userData: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/auth/signup`, userData).pipe(
+            catchError(error => {
+                console.error('Erreur lors de l\'inscription:', error);
+                return throwError(() => error);
+            })
+        );
+    }
 }
