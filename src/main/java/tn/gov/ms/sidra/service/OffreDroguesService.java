@@ -189,7 +189,7 @@ public class OffreDroguesService {
                 .map(offreDroguesMapper::toListDto)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Récupère la dernière donnée d'offre de drogues avant une date spécifique
      */
@@ -197,15 +197,15 @@ public class OffreDroguesService {
     public OffreDroguesDto getLastEntryBefore(LocalDate date, Long currentId, User currentUser) {
         log.info("Récupération de la dernière donnée d'offre de drogues avant la date: {} (excluant ID: {})",
                 date, currentId);
-        
+
         List<OffreDrogues> entries = offreDroguesRepository.findLastEntryBefore(date, currentId);
-        
+
         if (entries.isEmpty()) {
             return null;
         }
-        
+
         OffreDrogues lastEntry = entries.get(0);
-        
+
         // Vérifier les permissions
         try {
             validateReadPermissions(lastEntry, currentUser);
@@ -213,7 +213,7 @@ public class OffreDroguesService {
             log.warn("L'utilisateur n'a pas les permissions pour voir la dernière entrée: {}", e.getMessage());
             return null;
         }
-        
+
         return offreDroguesMapper.toDto(lastEntry);
     }
 

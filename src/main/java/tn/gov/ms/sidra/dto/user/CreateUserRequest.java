@@ -21,7 +21,7 @@ public class CreateUserRequest {
     private String email;
 
     @NotBlank(message = "Le téléphone est obligatoire")
-    @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Format de téléphone invalide")
+    @Pattern(regexp = "^[0-9]{8}$", message = "Le numéro de téléphone doit comporter exactement 8 chiffres")
     private String telephone;
 
     @NotNull(message = "Le rôle est obligatoire")

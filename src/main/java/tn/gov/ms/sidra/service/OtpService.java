@@ -186,7 +186,7 @@ public class OtpService {
      * Envoie le code OTP par SMS de manière asynchrone
      */
     @Async
-    private void sendOtpBySms(User user, String otpCode) {
+    protected void sendOtpBySms(User user, String otpCode) {
         try {
             String message = String.format(
                     "SIDRA: Votre code de vérification est %s. Ce code expire dans 5 minutes. Ne le partagez avec personne.",

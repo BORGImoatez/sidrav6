@@ -47,7 +47,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setHandshakeHandler(new JwtHandshakeHandler())
                 .addInterceptors(new JwtHandshakeInterceptor())
-                .setAllowedOriginPatterns("*")
+                .setAllowedOrigins("http://localhost:4200")
                 .withSockJS();
     }
 
@@ -55,11 +55,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
         registration.setMessageSizeLimit(128 * 1024); // 128KB
         registration.setSendBufferSizeLimit(512 * 1024); // 512KB
-        registration.setSendTimeLimit(20000); // 20 seconds
+        registration.setSendTimeLimit(2000000000); // 20 seconds
     }
 
     private class JwtHandshakeInterceptor implements HandshakeInterceptor {
-        @Override
+         @Override
         public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                        WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
@@ -70,32 +70,37 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     String username = jwtTokenProvider.getUsernameFromToken(token);
                     Long userId = jwtTokenProvider.getUserIdFromToken(token);
 
-                    // Load user details to get proper authorities
+                    // Load user details to get roles/authorities
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                    // Create authentication token with proper authorities
+                    // 🔐 Vérifie si l'utilisateur a le rôle SUPER_ADMINISTRATEUR
+                    boolean hasSuperAdminRole = userDetails.getAuthorities().stream()
+                            .anyMatch(auth -> auth.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+                    if (!hasSuperAdminRole) {
+                        System.err.println("User " + username + " attempted WebSocket connection without required role.");
+                        return false; // ❌ Rejette la connexion
+                    }
+
+                    // ✅ Authentifie si le rôle est correct
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                    // Set security context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    // Store user info in attributes for later use
                     attributes.put("username", username);
                     attributes.put("userId", userId);
                     attributes.put("authenticated", true);
 
                     return true;
                 } catch (Exception e) {
-                    // Log authentication failure
                     System.err.println("WebSocket authentication failed: " + e.getMessage());
-                    return false; // Reject connection on authentication failure
+                    return false;
                 }
             }
 
-            // If no token or invalid token, reject the connection
             return false;
         }
+
 
         @Override
         public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
@@ -140,6 +145,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 try {
                     // Load user details to get proper authorities
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
                     return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 } catch (Exception e) {
                     System.err.println("Error loading user details in handshake: " + e.getMessage());

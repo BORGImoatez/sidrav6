@@ -34,11 +34,11 @@ public class OffreDroguesController {
     @GetMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
     public ResponseEntity<List<OffreDroguesListDto>> getAllOffresDrogues(
-        @AuthenticationPrincipal User currentUser,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
-        log.info("Récupération des données d'offre de drogues - utilisateur: {}, période: {} - {}", 
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        log.info("Récupération des données d'offre de drogues - utilisateur: {}, période: {} - {}",
                 currentUser.getEmail(), startDate, endDate);
 
         List<OffreDroguesListDto> offresDrogues;
@@ -58,13 +58,13 @@ public class OffreDroguesController {
     @GetMapping("/last-before")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
     public ResponseEntity<OffreDroguesDto> getLastEntryBefore(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-        @RequestParam Long currentId,
-        @AuthenticationPrincipal User currentUser) {
-        
-        log.info("Récupération de la dernière donnée d'offre de drogues avant la date: {} (excluant ID: {})", 
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam Long currentId,
+            @AuthenticationPrincipal User currentUser) {
+
+        log.info("Récupération de la dernière donnée d'offre de drogues avant la date: {} (excluant ID: {})",
                 date, currentId);
-        
+
         OffreDroguesDto lastEntry = offreDroguesService.getLastEntryBefore(date, currentId, currentUser);
         return ResponseEntity.ok(lastEntry);
     }
@@ -75,10 +75,10 @@ public class OffreDroguesController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
     public ResponseEntity<OffreDroguesDto> getOffreDroguesById(@PathVariable Long id,
-                                                              @AuthenticationPrincipal User currentUser) {
-        log.info("Récupération de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}", 
+                                                               @AuthenticationPrincipal User currentUser) {
+        log.info("Récupération de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}",
                 id, currentUser.getEmail());
-        
+
         OffreDroguesDto offreDrogues = offreDroguesService.getOffreDroguesById(id, currentUser);
         return ResponseEntity.ok(offreDrogues);
     }
@@ -89,10 +89,10 @@ public class OffreDroguesController {
     @PostMapping
     @PreAuthorize("hasRole('EXTERNE')")
     public ResponseEntity<OffreDroguesDto> createOffreDrogues(@Valid @RequestBody CreateOffreDroguesRequest request,
-                                                             @AuthenticationPrincipal User currentUser) {
-        log.info("Création d'une nouvelle donnée d'offre de drogues pour la date: {} par l'utilisateur: {}", 
+                                                              @AuthenticationPrincipal User currentUser) {
+        log.info("Création d'une nouvelle donnée d'offre de drogues pour la date: {} par l'utilisateur: {}",
                 request.getDateSaisie(), currentUser.getEmail());
-        
+
         OffreDroguesDto createdOffreDrogues = offreDroguesService.createOffreDrogues(request, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOffreDrogues);
     }
@@ -103,11 +103,11 @@ public class OffreDroguesController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('EXTERNE')")
     public ResponseEntity<OffreDroguesDto> updateOffreDrogues(@PathVariable Long id,
-                                                             @Valid @RequestBody UpdateOffreDroguesRequest request,
-                                                             @AuthenticationPrincipal User currentUser) {
-        log.info("Mise à jour de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}", 
+                                                              @Valid @RequestBody UpdateOffreDroguesRequest request,
+                                                              @AuthenticationPrincipal User currentUser) {
+        log.info("Mise à jour de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}",
                 id, currentUser.getEmail());
-        
+
         OffreDroguesDto updatedOffreDrogues = offreDroguesService.updateOffreDrogues(id, request, currentUser);
         return ResponseEntity.ok(updatedOffreDrogues);
     }
@@ -118,10 +118,10 @@ public class OffreDroguesController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('EXTERNE')")
     public ResponseEntity<Void> deleteOffreDrogues(@PathVariable Long id,
-                                                  @AuthenticationPrincipal User currentUser) {
-        log.info("Suppression de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}", 
+                                                   @AuthenticationPrincipal User currentUser) {
+        log.info("Suppression de la donnée d'offre de drogues avec l'ID: {} par l'utilisateur: {}",
                 id, currentUser.getEmail());
-        
+
         offreDroguesService.deleteOffreDrogues(id, currentUser);
         return ResponseEntity.noContent().build();
     }
@@ -133,7 +133,7 @@ public class OffreDroguesController {
     @PreAuthorize("hasRole('EXTERNE')")
     public ResponseEntity<Long> getUserStatistics(@AuthenticationPrincipal User currentUser) {
         log.info("Récupération des statistiques pour l'utilisateur: {}", currentUser.getEmail());
-        
+
         long count = offreDroguesService.getCountByUser(currentUser);
         return ResponseEntity.ok(count);
     }

@@ -11,14 +11,19 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-                // Allow CONNECT messages to pass through for authentication
-                .simpTypeMatchers(SimpMessageType.CONNECT).permitAll()
-                // Allow DISCONNECT and HEARTBEAT for connection management
-                .simpTypeMatchers(SimpMessageType.DISCONNECT, SimpMessageType.HEARTBEAT).permitAll()
-                // Require authentication for all other message types
-                .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE)
-                .authenticated()
-                // Any other message requires authentication
+                // Autoriser la connexion initiale
+                .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.DISCONNECT, SimpMessageType.HEARTBEAT).permitAll()
+
+                // Autoriser les souscriptions aux topics publics
+                .simpDestMatchers("/topic/**", "/queue/**").permitAll()
+
+                // Protéger les destinations d'application (envoyées à @MessageMapping)
+                .simpDestMatchers("/app/**").authenticated()
+
+                // Protéger les destinations utilisateur
+                .simpDestMatchers("/user/**", "/user/queue/**").authenticated()
+
+                // Par défaut : tout le reste nécessite une authentification
                 .anyMessage().authenticated();
     }
 
@@ -27,4 +32,5 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
         // Disable CSRF for WebSockets
         return true;
     }
+
 }

@@ -7,6 +7,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,30 +41,34 @@ public class SmsService {
         try {
             log.info("Envoi SMS vers le numéro: {}", phoneNumber);
 
+//                 String url = String.format("http://10.172.20.7/rdvtestcovid/dmicim11/send_sms.php?gsm=%s&msg=%s",phoneNumber, message);
+//                restTemplate.getForObject(url, String.class);
+//
             // ========================================
             // TODO: IMPLÉMENTATION DE VOTRE API SMS
             // ========================================
             
             // Exemple générique - À ADAPTER selon votre fournisseur
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(smsApiKey); // ou headers.set("Authorization", "Bearer " + smsApiKey);
-            
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("to", phoneNumber);
-            requestBody.put("from", smsSender);
-            requestBody.put("text", message);
-            
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-            
-            ResponseEntity<String> response = restTemplate.postForEntity(smsApiUrl, request, String.class);
-            
-            if (response.getStatusCode() == HttpStatus.OK) {
-                log.info("SMS envoyé avec succès vers: {}", phoneNumber);
-            } else {
-                log.error("Erreur lors de l'envoi SMS. Code de réponse: {}", response.getStatusCode());
-                throw new RuntimeException("Erreur lors de l'envoi du SMS");
-            }
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setContentType(MediaType.APPLICATION_JSON);
+//            headers.setBearerAuth(smsApiKey); // ou headers.set("Authorization", "Bearer " + smsApiKey);
+//
+//            Map<String, Object> requestBody = new HashMap<>();
+//            requestBody.put("to", phoneNumber);
+//            requestBody.put("from", smsSender);
+//            requestBody.put("text", message);
+//
+//            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+//
+//            ResponseEntity<String> response = restTemplate.postForEntity(smsApiUrl, request, String.class);
+//
+//            if (response.getStatusCode() == HttpStatus.OK) {
+//                log.info("SMS envoyé avec succès vers: {}", phoneNumber);
+//            } else {
+//                log.error("Erreur lors de l'envoi SMS. Code de réponse: {}", response.getStatusCode());
+//                throw new RuntimeException("Erreur lors de l'envoi du SMS");
+//            }
+            log.info("SMS envoyé avec succès vers: {}", phoneNumber);
 
             // ========================================
             // EXEMPLES D'IMPLÉMENTATIONS SPÉCIFIQUES

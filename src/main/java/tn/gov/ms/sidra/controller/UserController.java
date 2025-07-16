@@ -132,6 +132,7 @@ public class UserController {
      * Récupère les informations de structure de l'utilisateur connecté
      */
     @GetMapping("/structure-info")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE','UTILISATEUR','EXTERNE')")
     public ResponseEntity<UserStructureInfoDto> getUserStructureInfo(@AuthenticationPrincipal User currentUser) {
         log.info("Récupération des informations de structure pour l'utilisateur: {}", currentUser.getEmail());
 

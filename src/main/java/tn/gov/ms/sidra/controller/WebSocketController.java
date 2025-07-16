@@ -2,6 +2,7 @@ package tn.gov.ms.sidra.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -47,5 +48,10 @@ public class WebSocketController {
         response.put("timestamp", System.currentTimeMillis());
 
         return response;
+    }
+    @MessageExceptionHandler(Exception.class)
+    @SendToUser("/queue/errors")
+    public String handleException(Exception e) {
+        return "Erreur : " + e.getMessage();
     }
 }

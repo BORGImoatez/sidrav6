@@ -23,7 +23,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
-                                             HttpServletRequest httpRequest) {
+                                               HttpServletRequest httpRequest) {
         String ipAddress = getClientIpAddress(httpRequest);
         LoginResponse response = authService.login(request, ipAddress);
         return ResponseEntity.ok(response);
@@ -43,7 +43,7 @@ public class AuthController {
      */
     @PostMapping("/resend-otp")
     public ResponseEntity<LoginResponse> resendOtp(@RequestParam Long userId,
-                                                 HttpServletRequest httpRequest) {
+                                                   HttpServletRequest httpRequest) {
         String ipAddress = getClientIpAddress(httpRequest);
         LoginResponse response = authService.resendOtp(userId, ipAddress);
         return ResponseEntity.ok(response);
@@ -64,7 +64,7 @@ public class AuthController {
      */
     @PostMapping("/forgot-password/request")
     public ResponseEntity<LoginResponse> requestPasswordReset(@RequestBody ForgotPasswordRequest request,
-                                                            HttpServletRequest httpRequest) {
+                                                              HttpServletRequest httpRequest) {
         String ipAddress = getClientIpAddress(httpRequest);
         LoginResponse response = authService.requestPasswordReset(request.getTelephone(), ipAddress);
         return ResponseEntity.ok(response);
@@ -84,7 +84,7 @@ public class AuthController {
      */
     @PostMapping("/forgot-password/resend-otp")
     public ResponseEntity<LoginResponse> resendPasswordResetOtp(@RequestBody ResendOtpRequest request,
-                                                              HttpServletRequest httpRequest) {
+                                                                HttpServletRequest httpRequest) {
         String ipAddress = getClientIpAddress(httpRequest);
         LoginResponse response = authService.resendPasswordResetOtp(request.getUserId(), ipAddress);
         return ResponseEntity.ok(response);
@@ -106,14 +106,14 @@ public class AuthController {
     public ResponseEntity<String> checkAuthStatus() {
         return ResponseEntity.ok("Authentifié");
     }
-    
+
     /**
      * Inscription d'un nouvel utilisateur (compte inactif)
      */
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         log.info("Demande d'inscription pour l'email: {}", request.getEmail());
-        
+
         SignupResponse response = authService.signup(request);
         return ResponseEntity.ok(response);
     }
@@ -126,12 +126,12 @@ public class AuthController {
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
             return xForwardedFor.split(",")[0].trim();
         }
-        
+
         String xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty()) {
             return xRealIp;
         }
-        
+
         return request.getRemoteAddr();
     }
 
