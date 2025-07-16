@@ -2023,9 +2023,9 @@ export class Step1Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
+  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
-  showValidationErrors = false;
 
   userStructureInfo: UserStructureInfo | null = null;
   isLoading = true;
@@ -2387,9 +2387,10 @@ export class Step1Component implements OnInit, OnChanges {
   }
 
   private validateStep(): void {
+    // Liste des champs obligatoires
     const required = [
-      'dateConsultation', 'genre',
-      'nationalite', 'residence'
+      'secteur', 'structure', 'gouvernoratStructure', 'dateConsultation',
+      'genre', 'dateNaissance', 'nationalite', 'residence'
     ];
 
     // Vérifier que l'année de naissance est présente
@@ -2398,96 +2399,87 @@ export class Step1Component implements OnInit, OnChanges {
       return;
     }
 
-    // Check conditional required fields
-    if (this.localData.secteur === 'ONG') {
-      required.push('ongPrecision');
+    // Vérifier les champs obligatoires
+    let isValid = required.every(field => {
+      const value = (this.localData as any)[field];
+      const isFieldValid = value !== undefined && value !== null && value !== '';
+      
+      // Si le champ n'est pas valide et que showValidationErrors est true, on affiche l'erreur
+      if (this.showValidationErrors && !isFieldValid) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+      
+      return isFieldValid;
+    });
+
+    // Vérifier les champs conditionnels
+    if (this.localData.secteur === 'ONG' && !this.localData.ongPrecision) {
+      isValid = false;
     }
 
     if (this.localData.residence === 'TUNISIE') {
-      required.push('gouvernoratResidence');
-    }
-
-    if (this.localData.residence === 'ETRANGER') {
-      required.push('paysResidence');
-    }
-
-    if (this.localData.cadreConsultationPrincipal === 'AUTRE') {
-      if (!this.localData.cadreConsultation?.autrePrecision) {
-        this.validationChange.emit(false);
-        return;
+      if (!this.localData.gouvernoratResidence || !this.localData.delegationResidence) {
+        isValid = false;
+        
+        // Si showValidationErrors est true, on affiche l'erreur
+        if (this.showValidationErrors) {
+          // Logique pour afficher l'erreur (peut être implémentée dans le template)
+        }
+      }
+    } else if (this.localData.residence === 'ETRANGER') {
+      if (!this.localData.paysResidence) {
+        isValid = false;
+        
+        // Si showValidationErrors est true, on affiche l'erreur
+        if (this.showValidationErrors) {
+          // Logique pour afficher l'erreur (peut être implémentée dans le template)
+        }
       }
     }
 
-    if (this.localData.situationFamiliale === 'AUTRE' && !this.localData.situationFamilialeAutre) {
-      this.validationChange.emit(false);
-      return;
+    if (!this.localData.cadreConsultationPrincipal) {
+      isValid = false;
     }
 
-    if (this.localData.logement30Jours === 'AUTRE' && !this.localData.logement30JoursAutre) {
-      this.validationChange.emit(false);
-      return;
+    if (!this.localData.situationFamiliale) {
+      isValid = false;
     }
 
-    if (this.localData.origineDemande?.autre === true && !this.localData.origineDemande?.autrePrecision) {
-      this.validationChange.emit(false);
-      return;
+    if (!this.localData.logement30Jours) {
+      isValid = false;
     }
 
-    if (this.localData.consultationAnterieure === true) {
-      if (!this.localData.dateConsultationAnterieure || !this.localData.motifConsultationAnterieure) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      if (this.localData.motifConsultationAnterieure === 'RECIDIVES' && !this.localData.causeRecidive) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      if (this.localData.motifConsultationAnterieure === 'SEVRAGE' && !this.localData.causeEchecSevrage) {
-        this.validationChange.emit(false);
-        return;
-      }
+    if (!this.localData.natureLogement) {
+      isValid = false;
     }
 
-    if (this.localData.activiteSportive === true) {
-      if (!this.localData.activiteSportiveFrequence || !this.localData.activiteSportiveType) {
-        this.validationChange.emit(false);
-        return;
-      }
+    if (!this.localData.profession) {
+      isValid = false;
+    }
 
-      if (this.localData.activiteSportiveType === 'COMPETITION' && this.localData.dopage === null) {
-        this.validationChange.emit(false);
-        return;
+    if (!this.localData.niveauScolaire) {
+      isValid = false;
+    }
+
+    // Vérifier les champs conditionnels pour le cadre de consultation
+    if (this.localData.cadreConsultation?.autre && !this.localData.cadreConsultation?.autrePrecision) {
+      isValid = false;
+      
+      // Si showValidationErrors est true, on affiche l'erreur
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
       }
     }
 
-    // Validation de la date de naissance (seule l'année est obligatoire)
-    if (!this.isValidDateNaissance()) {
-      this.validationChange.emit(false);
-      return;
+    // Vérifier les champs conditionnels pour l'origine de la demande
+    if (this.localData.origineDemande?.autre && !this.localData.origineDemande?.autrePrecision) {
+      isValid = false;
+      
+      // Si showValidationErrors est true, on affiche l'erreur
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
-
-    // Validation du motif de la consultation antérieure si "Autre" est sélectionné
-    if (this.localData.consultationAnterieure === true &&
-        this.localData.motifConsultationAnterieure === 'Autre' &&
-        !this.localData.motifConsultationAnterieurePrecision) {
-      this.validationChange.emit(false);
-      return;
-    }
-
-    /*Validation de la cause de récidive si "Rechute" est sélectionné
-    if (this.localData.consultationAnterieure === true &&
-        this.localData.motifConsultationAnterieure === 'Rechute' &&
-        !this.localData.causeRecidive) {
-      this.validationChange.emit(false);
-      return;
-    }*/
-
-    const isValid = required.every(field => {
-      const value = (this.localData as any)[field];
-      return value !== undefined && value !== null && value !== '';
-    });
 
     this.validationChange.emit(isValid);
   }

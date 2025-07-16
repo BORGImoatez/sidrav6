@@ -989,9 +989,9 @@ export class Step4Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
+  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
-  showValidationErrors = false;
 
   ngOnInit(): void {
     this.initializeData();
@@ -1053,32 +1053,96 @@ export class Step4Component implements OnInit, OnChanges {
   private validateStep(): void {
     let isValid = true;
 
+    // Vérifier si au moins une voie d'administration est sélectionnée
+    const hasVoieAdministration = this.localData.voieAdministration?.injectee === true ||
+                                 this.localData.voieAdministration?.fumee === true ||
+                                 this.localData.voieAdministration?.ingeree === true ||
+                                 this.localData.voieAdministration?.sniffee === true ||
+                                 this.localData.voieAdministration?.inhalee === true ||
+                                 this.localData.voieAdministration?.autre === true;
+                                 
+    if (!hasVoieAdministration) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+
+    // Vérifier si la fréquence de consommation est renseignée
+    if (!this.localData.frequenceSubstancePrincipale) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+
+    // Vérifier si le partage de seringues est renseigné
+    if (!this.localData.partageSeringues) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+
     // Validation pour "autre" voie d'administration
     if (this.localData.voieAdministration?.autre === true &&
         (!this.localData.voieAdministration?.autrePrecision ||
             this.localData.voieAdministration?.autrePrecision.trim() === '')) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
 
     // Validation pour les tests de dépistage
     if (this.localData.testVih?.realise === true && !this.localData.testVih?.periode) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
     if (this.localData.testVhc?.realise === true && !this.localData.testVhc?.periode) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
     if (this.localData.testVhb?.realise === true && !this.localData.testVhb?.periode) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
     if (this.localData.testSyphilis?.realise === true && !this.localData.testSyphilis?.periode) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
 
     // Validation pour accompagnement sevrage
+    if (this.localData.accompagnementSevrage === undefined || this.localData.accompagnementSevrage === null) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+    
     if (this.localData.accompagnementSevrage === false &&
         (!this.localData.accompagnementSevrageNonRaison ||
             this.localData.accompagnementSevrageNonRaison.trim() === '')) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+    
+    // Validation pour tentative de sevrage
+    if (this.localData.tentativeSevrage === undefined || this.localData.tentativeSevrage === null) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
 
     // Validation pour structure de santé
@@ -1086,6 +1150,9 @@ export class Step4Component implements OnInit, OnChanges {
         (!this.localData.tentativeSevrageDetails?.structureSantePrecision ||
             this.localData.tentativeSevrageDetails?.structureSantePrecision.trim() === '')) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
 
     this.validationChange.emit(isValid);

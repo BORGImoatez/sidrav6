@@ -1,0 +1,1151 @@
+<div class="step-container card">
+  <div class="card-header">
+    <h2 class="step-title">Étape 1 : Informations structure/centre & usager SPA</h2>
+    <p class="step-description">
+      Renseignez les informations sur la structure et l'usager
+    </p>
+  </div>
+
+  <div class="card-body">
+    <form class="step-form">
+      <!-- Section Structure -->
+      <div class="form-section">
+        <h3 class="section-title">Informations sur la structure/centre</h3>
+
+        <!-- Secteur -->
+        <div class="form-group">
+          <label class="form-label required">Secteur</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="secteur"
+                  value="PUBLIC"
+                  [(ngModel)]="localData.secteur"
+                  (change)="onSecteurChange()"
+              >
+              <span class="radio-text">Public</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="secteur"
+                  value="PRIVE"
+                  [(ngModel)]="localData.secteur"
+                  (change)="onSecteurChange()"
+              >
+              <span class="radio-text">Privé</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="secteur"
+                  value="ONG"
+                  [(ngModel)]="localData.secteur"
+                  (change)="onSecteurChange()"
+              >
+              <span class="radio-text">ONG</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="secteur"
+                  value="SOCIETE_CIVILE_ONG"
+                  [(ngModel)]="localData.secteur"
+                  (change)="onSecteurChange()"
+              >
+              <span class="radio-text">Société civile/ONG</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.secteur" class="form-error">
+            Le secteur est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision ONG (si ONG ou Société civile/ONG) -->
+        <div class="form-group" *ngIf="localData.secteur === 'ONG' || localData.secteur === 'SOCIETE_CIVILE_ONG'">
+          <label class="form-label required">Précision ONG</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.ongPrecision"
+              [(ngModel)]="localData.ongPrecision"
+              name="ongPrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.ongPrecision" class="form-error">
+            La précision ONG est obligatoire
+          </div>
+        </div>
+
+        <!-- Ministère (si Public) -->
+        <div class="form-group" *ngIf="localData.secteur === 'PUBLIC'">
+          <label class="form-label required">Ministère</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.ministere"
+              [(ngModel)]="localData.ministere"
+              name="ministere"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner un ministère</option>
+            <option value="Ministère de la Santé">Ministère de la Santé</option>
+            <option value="Ministère de l'Intérieur">Ministère de l'Intérieur</option>
+            <option value="Ministère de la Justice">Ministère de la Justice</option>
+            <option value="Ministère de l'Éducation">Ministère de l'Éducation</option>
+            <option value="Ministère de l'Enseignement Supérieur">Ministère de l'Enseignement Supérieur</option>
+            <option value="Ministère des Affaires Sociales">Ministère des Affaires Sociales</option>
+            <option value="Ministère de la Jeunesse et des Sports">Ministère de la Jeunesse et des Sports</option>
+            <option value="Ministère de la Défense Nationale">Ministère de la Défense Nationale</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.ministere" class="form-error">
+            Le ministère est obligatoire
+          </div>
+        </div>
+
+        <!-- Structure -->
+        <div class="form-group">
+          <label class="form-label required">Structure</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.structure"
+              [(ngModel)]="localData.structure"
+              name="structure"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.structure" class="form-error">
+            La structure est obligatoire
+          </div>
+        </div>
+
+        <!-- Gouvernorat de la structure -->
+        <div class="form-group">
+          <label class="form-label required">Gouvernorat de la structure</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.gouvernoratStructure"
+              [(ngModel)]="localData.gouvernoratStructure"
+              name="gouvernoratStructure"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner un gouvernorat</option>
+            <option *ngFor="let gouvernorat of gouvernorats" [value]="gouvernorat.nom">
+              {{ gouvernorat.nom }}
+            </option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.gouvernoratStructure" class="form-error">
+            Le gouvernorat de la structure est obligatoire
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Usager SPA -->
+      <div class="form-section">
+        <h3 class="section-title">Informations sur l'usager SPA</h3>
+
+        <!-- Prénom -->
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="localData.prenom"
+              name="prenom"
+              (input)="onFieldChange()"
+          >
+        </div>
+
+        <!-- Nom -->
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="localData.nom"
+              name="nom"
+              (input)="onFieldChange()"
+          >
+        </div>
+
+        <!-- Date de consultation -->
+        <div class="form-group">
+          <label class="form-label required">Date de consultation</label>
+          <input
+              type="date"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.dateConsultation"
+              [(ngModel)]="localData.dateConsultation"
+              name="dateConsultation"
+              (change)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.dateConsultation" class="form-error">
+            La date de consultation est obligatoire
+          </div>
+        </div>
+
+        <!-- Genre -->
+        <div class="form-group">
+          <label class="form-label required">Genre</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="genre"
+                  value="HOMME"
+                  [(ngModel)]="localData.genre"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Homme</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="genre"
+                  value="FEMME"
+                  [(ngModel)]="localData.genre"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Femme</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.genre" class="form-error">
+            Le genre est obligatoire
+          </div>
+        </div>
+
+        <!-- Date de naissance -->
+        <div class="form-group">
+          <label class="form-label required">Date de naissance</label>
+          <input
+              type="date"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.dateNaissance"
+              [(ngModel)]="localData.dateNaissance"
+              name="dateNaissance"
+              (change)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.dateNaissance" class="form-error">
+            La date de naissance est obligatoire
+          </div>
+        </div>
+
+        <!-- Nationalité -->
+        <div class="form-group">
+          <label class="form-label required">Nationalité</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.nationalite"
+              [(ngModel)]="localData.nationalite"
+              name="nationalite"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner une nationalité</option>
+            <option value="Tunisienne">Tunisienne</option>
+            <option value="Algérienne">Algérienne</option>
+            <option value="Libyenne">Libyenne</option>
+            <option value="Marocaine">Marocaine</option>
+            <option value="Française">Française</option>
+            <option value="Italienne">Italienne</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.nationalite" class="form-error">
+            La nationalité est obligatoire
+          </div>
+        </div>
+
+        <!-- Résidence -->
+        <div class="form-group">
+          <label class="form-label required">Résidence</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="residence"
+                  value="TUNISIE"
+                  [(ngModel)]="localData.residence"
+                  (change)="onResidenceChange()"
+              >
+              <span class="radio-text">Tunisie</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="residence"
+                  value="ETRANGER"
+                  [(ngModel)]="localData.residence"
+                  (change)="onResidenceChange()"
+              >
+              <span class="radio-text">Étranger</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.residence" class="form-error">
+            La résidence est obligatoire
+          </div>
+        </div>
+
+        <!-- Gouvernorat de résidence (si Tunisie) -->
+        <div class="form-group" *ngIf="localData.residence === 'TUNISIE'">
+          <label class="form-label required">Gouvernorat de résidence</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.gouvernoratResidence"
+              [(ngModel)]="localData.gouvernoratResidence"
+              name="gouvernoratResidence"
+              (change)="onGouvernoratResidenceChange()"
+          >
+            <option value="">Sélectionner un gouvernorat</option>
+            <option *ngFor="let gouvernorat of gouvernorats" [value]="gouvernorat.nom">
+              {{ gouvernorat.nom }}
+            </option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.gouvernoratResidence" class="form-error">
+            Le gouvernorat de résidence est obligatoire
+          </div>
+        </div>
+
+        <!-- Délégation de résidence (si Tunisie) -->
+        <div class="form-group" *ngIf="localData.residence === 'TUNISIE' && localData.gouvernoratResidence">
+          <label class="form-label required">Délégation de résidence</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.delegationResidence"
+              [(ngModel)]="localData.delegationResidence"
+              name="delegationResidence"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner une délégation</option>
+            <option *ngFor="let delegation of delegations" [value]="delegation.nom">
+              {{ delegation.nom }}
+            </option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.delegationResidence" class="form-error">
+            La délégation de résidence est obligatoire
+          </div>
+        </div>
+
+        <!-- Pays de résidence (si Étranger) -->
+        <div class="form-group" *ngIf="localData.residence === 'ETRANGER'">
+          <label class="form-label required">Pays de résidence</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.paysResidence"
+              [(ngModel)]="localData.paysResidence"
+              name="paysResidence"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner un pays</option>
+            <option *ngFor="let pays of countries" [value]="pays.nom">
+              {{ pays.nom }}
+            </option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.paysResidence" class="form-error">
+            Le pays de résidence est obligatoire
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Cadre de consultation -->
+      <div class="form-section">
+        <h3 class="section-title">Cadre de consultation</h3>
+        <p class="section-description">Plusieurs choix possibles</p>
+
+        <div class="checkbox-grid">
+          <!-- Addictologie -->
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input
+                  type="checkbox"
+                  [(ngModel)]="localData.cadreConsultation!.addictologie"
+                  name="addictologie"
+                  (change)="onFieldChange()"
+              >
+              <span class="checkbox-text">Addictologie</span>
+            </label>
+
+            <!-- Type d'addictologie (si Addictologie) -->
+            <div class="nested-options" *ngIf="localData.cadreConsultation?.addictologie">
+              <label class="radio-option">
+                <input
+                    type="radio"
+                    name="addictologieType"
+                    value="SEVRAGE"
+                    [(ngModel)]="localData.cadreConsultation!.addictologieType"
+                    (change)="onFieldChange()"
+                >
+                <span class="radio-text">Sevrage</span>
+              </label>
+              <label class="radio-option">
+                <input
+                    type="radio"
+                    name="addictologieType"
+                    value="GESTION_ADDICTION"
+                    [(ngModel)]="localData.cadreConsultation!.addictologieType"
+                    (change)="onFieldChange()"
+                >
+                <span class="radio-text">Gestion d'addiction</span>
+              </label>
+              <label class="radio-option">
+                <input
+                    type="radio"
+                    name="addictologieType"
+                    value="RISQUE_RECHUTE"
+                    [(ngModel)]="localData.cadreConsultation!.addictologieType"
+                    (change)="onFieldChange()"
+                >
+                <span class="radio-text">Risque de rechute</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Autres options -->
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.psychiatrie"
+                name="psychiatrie"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Psychiatrie</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.psychologique"
+                name="psychologique"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Psychologique</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.medecineGenerale"
+                name="medecineGenerale"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Médecine générale</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.neurologique"
+                name="neurologique"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Neurologique</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.infectieux"
+                name="infectieux"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Infectieux</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.espaceAmisJeunes"
+                name="espaceAmisJeunes"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Espace amis jeunes</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.echangeMateriel"
+                name="echangeMateriel"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Échange de matériel</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.rehabilitation"
+                name="rehabilitation"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Réhabilitation</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.urgenceMedicale"
+                name="urgenceMedicale"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Urgence médicale</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.urgenceChirurgicale"
+                name="urgenceChirurgicale"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Urgence chirurgicale</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.depistage"
+                name="depistage"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Dépistage</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.cadreConsultation!.autre"
+                name="cadreAutre"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Autre</span>
+          </label>
+        </div>
+
+        <!-- Précision autre cadre de consultation -->
+        <div class="form-group" *ngIf="localData.cadreConsultation?.autre">
+          <label class="form-label required">Préciser autre cadre de consultation</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.cadreConsultation?.autrePrecision"
+              [(ngModel)]="localData.cadreConsultation!.autrePrecision"
+              name="cadreAutrePrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.cadreConsultation?.autrePrecision" class="form-error">
+            La précision est obligatoire
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Origine de la demande -->
+      <div class="form-section">
+        <h3 class="section-title">Origine de la demande</h3>
+        <p class="section-description">Plusieurs choix possibles</p>
+
+        <div class="checkbox-grid">
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.luiMeme"
+                name="luiMeme"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Lui-même</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.famille"
+                name="famille"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Famille</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.amis"
+                name="amis"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Amis</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.celluleEcoute"
+                name="celluleEcoute"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Cellule d'écoute</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.autreCentre"
+                name="autreCentre"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Autre centre</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.structureSociale"
+                name="structureSociale"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Structure sociale</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.structureJudiciaire"
+                name="structureJudiciaire"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Structure judiciaire</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.jugeEnfance"
+                name="jugeEnfance"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Juge de l'enfance</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input
+                type="checkbox"
+                [(ngModel)]="localData.origineDemande!.autre"
+                name="origineAutre"
+                (change)="onFieldChange()"
+            >
+            <span class="checkbox-text">Autre</span>
+          </label>
+        </div>
+
+        <!-- Précision autre origine de la demande -->
+        <div class="form-group" *ngIf="localData.origineDemande?.autre">
+          <label class="form-label required">Préciser autre origine de la demande</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.origineDemande?.autrePrecision"
+              [(ngModel)]="localData.origineDemande!.autrePrecision"
+              name="origineAutrePrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.origineDemande?.autrePrecision" class="form-error">
+            La précision est obligatoire
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Informations complémentaires -->
+      <div class="form-section">
+        <h3 class="section-title">Informations complémentaires</h3>
+
+        <!-- Cause/circonstance -->
+        <div class="form-group">
+          <label class="form-label required">Cause/circonstance</label>
+          <textarea
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.causeCirconstance"
+              [(ngModel)]="localData.causeCirconstance"
+              name="causeCirconstance"
+              rows="3"
+              (input)="onFieldChange()"
+          ></textarea>
+          <div *ngIf="showValidationErrors && !localData.causeCirconstance" class="form-error">
+            La cause/circonstance est obligatoire
+          </div>
+        </div>
+
+        <!-- Consultation antérieure -->
+        <div class="form-group">
+          <label class="form-label required">Consultation antérieure</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="consultationAnterieure"
+                  [value]="true"
+                  [(ngModel)]="localData.consultationAnterieure"
+                  (change)="onConsultationAnterieureChange()"
+              >
+              <span class="radio-text">Oui</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="consultationAnterieure"
+                  [value]="false"
+                  [(ngModel)]="localData.consultationAnterieure"
+                  (change)="onConsultationAnterieureChange()"
+              >
+              <span class="radio-text">Non</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && localData.consultationAnterieure === null" class="form-error">
+            Ce champ est obligatoire
+          </div>
+        </div>
+
+        <!-- Date de consultation antérieure (si Oui) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true">
+          <label class="form-label required">Date de consultation antérieure</label>
+          <input
+              type="date"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.dateConsultationAnterieure"
+              [(ngModel)]="localData.dateConsultationAnterieure"
+              name="dateConsultationAnterieure"
+              (change)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.dateConsultationAnterieure" class="form-error">
+            La date de consultation antérieure est obligatoire
+          </div>
+        </div>
+
+        <!-- Motif de consultation antérieure (si Oui) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true">
+          <label class="form-label required">Motif de consultation antérieure</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.motifConsultationAnterieure"
+              [(ngModel)]="localData.motifConsultationAnterieure"
+              name="motifConsultationAnterieure"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner un motif</option>
+            <option value="Sevrage">Sevrage</option>
+            <option value="Gestion d'addiction">Gestion d'addiction</option>
+            <option value="Risque de rechute">Risque de rechute</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.motifConsultationAnterieure" class="form-error">
+            Le motif de consultation antérieure est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision motif de consultation antérieure (si Autre) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true && localData.motifConsultationAnterieure === 'Autre'">
+          <label class="form-label required">Préciser le motif</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.motifConsultationAnterieurePrecision"
+              [(ngModel)]="localData.motifConsultationAnterieurePrecision"
+              name="motifConsultationAnterieurePrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.motifConsultationAnterieurePrecision" class="form-error">
+            La précision du motif est obligatoire
+          </div>
+        </div>
+
+        <!-- Cause de récidive (si consultation antérieure) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true">
+          <label class="form-label required">Cause de récidive</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.causeRecidive"
+              [(ngModel)]="localData.causeRecidive"
+              name="causeRecidive"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner une cause</option>
+            <option value="Environnement">Environnement</option>
+            <option value="Entourage">Entourage</option>
+            <option value="Stress">Stress</option>
+            <option value="Dépression">Dépression</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.causeRecidive" class="form-error">
+            La cause de récidive est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision cause de récidive (si Autre) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true && localData.causeRecidive === 'Autre'">
+          <label class="form-label required">Préciser la cause de récidive</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.causeRecidivePrecision"
+              [(ngModel)]="localData.causeRecidivePrecision"
+              name="causeRecidivePrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.causeRecidivePrecision" class="form-error">
+            La précision de la cause de récidive est obligatoire
+          </div>
+        </div>
+
+        <!-- Cause d'échec de sevrage (si consultation antérieure) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true">
+          <label class="form-label required">Cause d'échec de sevrage</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.causeEchecSevrage"
+              [(ngModel)]="localData.causeEchecSevrage"
+              name="causeEchecSevrage"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner une cause</option>
+            <option value="Environnement">Environnement</option>
+            <option value="Entourage">Entourage</option>
+            <option value="Stress">Stress</option>
+            <option value="Dépression">Dépression</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.causeEchecSevrage" class="form-error">
+            La cause d'échec de sevrage est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision cause d'échec de sevrage (si Autre) -->
+        <div class="form-group" *ngIf="localData.consultationAnterieure === true && localData.causeEchecSevrage === 'Autre'">
+          <label class="form-label required">Préciser la cause d'échec de sevrage</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.causeEchecSevragePrecision"
+              [(ngModel)]="localData.causeEchecSevragePrecision"
+              name="causeEchecSevragePrecision"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.causeEchecSevragePrecision" class="form-error">
+            La précision de la cause d'échec de sevrage est obligatoire
+          </div>
+        </div>
+
+        <!-- Situation familiale -->
+        <div class="form-group">
+          <label class="form-label required">Situation familiale</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.situationFamiliale"
+              [(ngModel)]="localData.situationFamiliale"
+              name="situationFamiliale"
+              (change)="onSituationFamilialeChange()"
+          >
+            <option value="">Sélectionner une situation</option>
+            <option value="CELIBATAIRE">Célibataire</option>
+            <option value="MARIE">Marié(e)</option>
+            <option value="DIVORCE">Divorcé(e)</option>
+            <option value="SEPARE">Séparé(e)</option>
+            <option value="VEUF">Veuf/Veuve</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.situationFamiliale" class="form-error">
+            La situation familiale est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision situation familiale (si Autre) -->
+        <div class="form-group" *ngIf="localData.situationFamiliale === 'AUTRE'">
+          <label class="form-label required">Préciser la situation familiale</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.situationFamilialeAutre"
+              [(ngModel)]="localData.situationFamilialeAutre"
+              name="situationFamilialeAutre"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.situationFamilialeAutre" class="form-error">
+            La précision de la situation familiale est obligatoire
+          </div>
+        </div>
+
+        <!-- Logement durant les 30 derniers jours -->
+        <div class="form-group">
+          <label class="form-label required">Logement durant les 30 derniers jours</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.logement30Jours"
+              [(ngModel)]="localData.logement30Jours"
+              name="logement30Jours"
+              (change)="onLogement30JoursChange()"
+          >
+            <option value="">Sélectionner un type de logement</option>
+            <option value="SEUL">Seul</option>
+            <option value="FAMILLE_ORIGINE">Famille d'origine</option>
+            <option value="PARTENAIRE">Partenaire</option>
+            <option value="ENFANTS">Enfants</option>
+            <option value="AMIS">Amis</option>
+            <option value="INTERNAT">Internat</option>
+            <option value="COLOCATION">Colocation</option>
+            <option value="FOYER">Foyer</option>
+            <option value="DETENTION">Détention</option>
+            <option value="CENTRE_JEUNESSE">Centre de jeunesse</option>
+            <option value="INSTITUTION">Institution</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.logement30Jours" class="form-error">
+            Le type de logement est obligatoire
+          </div>
+        </div>
+
+        <!-- Précision logement (si Autre) -->
+        <div class="form-group" *ngIf="localData.logement30Jours === 'AUTRE'">
+          <label class="form-label required">Préciser le type de logement</label>
+          <input
+              type="text"
+              class="form-input"
+              [class.error]="showValidationErrors && !localData.logement30JoursAutre"
+              [(ngModel)]="localData.logement30JoursAutre"
+              name="logement30JoursAutre"
+              (input)="onFieldChange()"
+          >
+          <div *ngIf="showValidationErrors && !localData.logement30JoursAutre" class="form-error">
+            La précision du type de logement est obligatoire
+          </div>
+        </div>
+
+        <!-- Nature du logement -->
+        <div class="form-group">
+          <label class="form-label required">Nature du logement</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="natureLogement"
+                  value="STABLE"
+                  [(ngModel)]="localData.natureLogement"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Stable</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="natureLogement"
+                  value="PRECAIRE"
+                  [(ngModel)]="localData.natureLogement"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Précaire</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.natureLogement" class="form-error">
+            La nature du logement est obligatoire
+          </div>
+        </div>
+
+        <!-- Profession -->
+        <div class="form-group">
+          <label class="form-label required">Profession</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.profession"
+              [(ngModel)]="localData.profession"
+              name="profession"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner une profession</option>
+            <option value="EMPLOYE">Employé</option>
+            <option value="COMPTE_PROPRE">À son compte</option>
+            <option value="JOURNALIER">Journalier</option>
+            <option value="SPORTIF">Sportif</option>
+            <option value="CHOMAGE">Chômage</option>
+            <option value="ELEVE">Élève</option>
+            <option value="ETUDIANT">Étudiant</option>
+            <option value="FORMATION">En formation</option>
+            <option value="RETRAITE">Retraité</option>
+            <option value="SANS_RESSOURCES">Sans ressources</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.profession" class="form-error">
+            La profession est obligatoire
+          </div>
+        </div>
+
+        <!-- Niveau scolaire -->
+        <div class="form-group">
+          <label class="form-label required">Niveau scolaire</label>
+          <select
+              class="form-select"
+              [class.error]="showValidationErrors && !localData.niveauScolaire"
+              [(ngModel)]="localData.niveauScolaire"
+              name="niveauScolaire"
+              (change)="onFieldChange()"
+          >
+            <option value="">Sélectionner un niveau</option>
+            <option value="ANALPHABETE">Analphabète</option>
+            <option value="PRESCOLAIRE">Préscolaire</option>
+            <option value="PRIMAIRE">Primaire</option>
+            <option value="COLLEGE">Collège</option>
+            <option value="SECONDAIRE">Secondaire</option>
+            <option value="FORMATION_PROF">Formation professionnelle</option>
+            <option value="UNIVERSITAIRE">Universitaire</option>
+          </select>
+          <div *ngIf="showValidationErrors && !localData.niveauScolaire" class="form-error">
+            Le niveau scolaire est obligatoire
+          </div>
+        </div>
+
+        <!-- Activité sportive -->
+        <div class="form-group">
+          <label class="form-label required">Activité sportive</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportive"
+                  [value]="true"
+                  [(ngModel)]="localData.activiteSportive"
+                  (change)="onActiviteSportiveChange()"
+              >
+              <span class="radio-text">Oui</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportive"
+                  [value]="false"
+                  [(ngModel)]="localData.activiteSportive"
+                  (change)="onActiviteSportiveChange()"
+              >
+              <span class="radio-text">Non</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && localData.activiteSportive === null" class="form-error">
+            Ce champ est obligatoire
+          </div>
+        </div>
+
+        <!-- Fréquence de l'activité sportive (si Oui) -->
+        <div class="form-group" *ngIf="localData.activiteSportive === true">
+          <label class="form-label required">Fréquence de l'activité sportive</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportiveFrequence"
+                  value="REGULIERE"
+                  [(ngModel)]="localData.activiteSportiveFrequence"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Régulière</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportiveFrequence"
+                  value="IRREGULIERE"
+                  [(ngModel)]="localData.activiteSportiveFrequence"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Irrégulière</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.activiteSportiveFrequence" class="form-error">
+            La fréquence de l'activité sportive est obligatoire
+          </div>
+        </div>
+
+        <!-- Type d'activité sportive (si Oui) -->
+        <div class="form-group" *ngIf="localData.activiteSportive === true">
+          <label class="form-label required">Type d'activité sportive</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportiveType"
+                  value="COMPETITION"
+                  [(ngModel)]="localData.activiteSportiveType"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Compétition</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="activiteSportiveType"
+                  value="LOISIR"
+                  [(ngModel)]="localData.activiteSportiveType"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Loisir</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && !localData.activiteSportiveType" class="form-error">
+            Le type d'activité sportive est obligatoire
+          </div>
+        </div>
+
+        <!-- Espaces de loisirs -->
+        <div class="form-group">
+          <label class="form-label required">Fréquentation des espaces de loisirs</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="espacesLoisirs"
+                  [value]="true"
+                  [(ngModel)]="localData.espacesLoisirs"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Oui</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="espacesLoisirs"
+                  [value]="false"
+                  [(ngModel)]="localData.espacesLoisirs"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Non</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && localData.espacesLoisirs === undefined" class="form-error">
+            Ce champ est obligatoire
+          </div>
+        </div>
+
+        <!-- Dopage -->
+        <div class="form-group">
+          <label class="form-label required">Dopage</label>
+          <div class="radio-options">
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="dopage"
+                  [value]="true"
+                  [(ngModel)]="localData.dopage"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Oui</span>
+            </label>
+            <label class="radio-option">
+              <input
+                  type="radio"
+                  name="dopage"
+                  [value]="false"
+                  [(ngModel)]="localData.dopage"
+                  (change)="onFieldChange()"
+              >
+              <span class="radio-text">Non</span>
+            </label>
+          </div>
+          <div *ngIf="showValidationErrors && localData.dopage === null" class="form-error">
+            Ce champ est obligatoire
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

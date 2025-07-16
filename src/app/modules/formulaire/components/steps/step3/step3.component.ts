@@ -1521,9 +1521,9 @@ export class Step3Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
+  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
-  showValidationErrors = false;
 
   // Options pour les hypnotiques
   hypnotiquesOptions = HYPNOTIQUES_OPTIONS;
@@ -1583,80 +1583,58 @@ export class Step3Component implements OnInit, OnChanges {
 
 
   private validateStep(): void {
-    const required = [
-      'consommationSpaEntourage',
-      'consommationSpaPersonnelle',
-      'troublesAlimentaires',
-      'addictionJeux',
-      'addictionEcrans',
-      'comportementsSexuels'
-    ];
+    // Vérifier si la consommation SPA dans l'entourage est renseignée
+    if (this.localData.consommationSpaEntourage === null || this.localData.consommationSpaEntourage === undefined) {
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+      this.validationChange.emit(false);
+      return;
+    }
 
-    // Validation conditionnelle pour l'entourage
+    // Vérifier si la consommation SPA personnelle est renseignée
+    if (this.localData.consommationSpaPersonnelle === null || this.localData.consommationSpaPersonnelle === undefined) {
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+      this.validationChange.emit(false);
+      return;
+    }
+
+    // Vérifier les champs conditionnels pour l'entourage SPA
     if (this.localData.consommationSpaEntourage === true) {
-      // Au moins un type d'entourage doit être sélectionné
-      const entourageSelected = Object.values(this.localData.entourageSpa || {}).some(value => value === true);
-      if (!entourageSelected) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      // Si "autre" est sélectionné, la précision est obligatoire
-      if (this.localData.entourageSpa?.autre === true && !this.localData.entourageSpa?.autrePrecision) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      // Au moins un type de SPA dans l'entourage doit être sélectionné
-      const typeSpaSelected = Object.values(this.localData.typeSpaEntourage || {}).some(value => value === true);
-      if (!typeSpaSelected) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      // Validations conditionnelles pour les précisions
-      if (this.localData.typeSpaEntourage?.morphiniques === true && !this.localData.typeSpaEntourage?.morphiniquesPrecision) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      if (this.localData.typeSpaEntourage?.autre === true && !this.localData.typeSpaEntourage?.autrePrecision) {
+      if (!this.hasAtLeastOneEntourageSpaSelected()) {
+        if (this.showValidationErrors) {
+          // Logique pour afficher l'erreur (peut être implémentée dans le template)
+        }
         this.validationChange.emit(false);
         return;
       }
     }
 
-    // Validation conditionnelle pour la consommation personnelle
+    // Vérifier les champs conditionnels pour la consommation personnelle
     if (this.localData.consommationSpaPersonnelle === true) {
-      // Au moins une drogue actuelle doit être sélectionnée
-      const drogueSelected = Object.values(this.localData.droguesActuelles || {}).some(value => value === true);
-      if (!drogueSelected) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      // Validations conditionnelles pour les précisions
-      if (this.localData.droguesActuelles?.morphiniques === true && !this.localData.droguesActuelles?.morphiniquesPrecision) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      if (this.localData.droguesActuelles?.autre === true && !this.localData.droguesActuelles?.autrePrecision) {
-        this.validationChange.emit(false);
-        return;
-      }
-
-      if (this.localData.substanceInitiation?.autre === true && !this.localData.substanceInitiation?.autrePrecision) {
+      if (!this.hasAtLeastOneDrogueActuelleSelected()) {
+        if (this.showValidationErrors) {
+          // Logique pour afficher l'erreur (peut être implémentée dans le template)
+        }
         this.validationChange.emit(false);
         return;
       }
     }
 
-    const isValid = required.every(field => {
-      const value = (this.localData as any)[field];
-      return value !== undefined && value !== null && value !== '';
-    });
+    // Vérifier les autres comportements addictifs
+    if (this.localData.troublesAlimentaires === null || this.localData.troublesAlimentaires === undefined ||
+        this.localData.addictionJeux === null || this.localData.addictionJeux === undefined ||
+        this.localData.addictionEcrans === null || this.localData.addictionEcrans === undefined ||
+        this.localData.comportementsSexuels === null || this.localData.comportementsSexuels === undefined) {
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+      this.validationChange.emit(false);
+      return;
+    }
 
-    this.validationChange.emit(isValid);
+    this.validationChange.emit(true);
   }
 }

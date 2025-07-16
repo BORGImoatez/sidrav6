@@ -1,0 +1,189 @@
+<div class="formulaire-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Nouveau formulaire SIDRA</h1>
+      <p class="page-description">
+        Saisie des données d'un usager SPA - Étape {{ currentStep }} sur {{ totalSteps }}
+      </p>
+    </div>
+    <button
+        class="btn btn-secondary"
+        (click)="goBack()"
+        type="button"
+    >
+      ← Retour
+    </button>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-section card">
+    <div class="card-body">
+      <div class="progress-header">
+        <h3 class="text-lg font-semibold text-gray-900">Progression</h3>
+        <span class="progress-text">{{ currentStep }}/{{ totalSteps }} étapes</span>
+      </div>
+
+      <div class="progress-bar">
+        <div
+            class="progress-fill"
+            [style.width.%]="(currentStep / totalSteps) * 100"
+        ></div>
+      </div>
+
+      <div class="steps-list">
+        <div
+            *ngFor="let step of steps; let i = index"
+            class="step-item"
+            [class.active]="step.id === currentStep"
+            [class.completed]="step.isCompleted"
+        >
+          <div class="step-number">
+            <span *ngIf="!step.isCompleted">{{ step.id }}</span>
+            <span *ngIf="step.isCompleted">✓</span>
+          </div>
+          <div class="step-title">{{ step.title }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form content -->
+  <div class="form-content">
+    <!-- Step 1: Informations structure/centre & usager SPA -->
+    <app-step1
+        *ngIf="currentStep === 1"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(1, $event)"
+    ></app-step1>
+
+    <!-- Step 2: Consommation tabac & alcool -->
+    <app-step2
+        *ngIf="currentStep === 2"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(2, $event)"
+    ></app-step2>
+
+    <!-- Step 3: Consommation de substances psychoactives -->
+    <app-step3
+        *ngIf="currentStep === 3"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(3, $event)"
+    ></app-step3>
+
+    <!-- Step 4: Comportements liés à la consommation et tests de dépistage -->
+    <app-step4
+        *ngIf="currentStep === 4"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(4, $event)"
+    ></app-step4>
+
+    <!-- Step 5: Comorbidités -->
+    <app-step5
+        *ngIf="currentStep === 5"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(5, $event)"
+    ></app-step5>
+
+    <!-- Step 6: Décès induit par les SPA dans l'entourage -->
+    <app-step6
+        *ngIf="currentStep === 6"
+        [data]="formulaireData"
+        [showValidationErrors]="showValidationErrors"
+        (dataChange)="onStepDataChange($event)"
+        (validationChange)="onStepValidationChange(6, $event)"
+    ></app-step6>
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="navigation-section card">
+    <div class="card-body">
+      <div class="navigation-buttons">
+        <button
+            class="btn btn-secondary"
+            (click)="previousStep()"
+            [disabled]="currentStep === 1 || isSaving"
+            type="button"
+        >
+          ← Précédent
+        </button>
+
+        <div class="step-info">
+          <span class="current-step-title">{{ getCurrentStepTitle() }}</span>
+        </div>
+
+        <button
+            *ngIf="currentStep < totalSteps"
+            class="btn btn-primary"
+            (click)="nextStep()"
+            type="button"
+        >
+          Suivant →
+        </button>
+
+        <button
+            *ngIf="currentStep === totalSteps"
+            class="btn btn-primary"
+            (click)="submitForm()"
+            [disabled]="isSaving"
+            type="button"
+        >
+          <span *ngIf="!isSaving">Valider le formulaire</span>
+          <span *ngIf="isSaving" class="flex items-center gap-2">
+            <div class="loading-spinner-sm"></div>
+            Validation en cours...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success modal -->
+  <div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">✅ Formulaire validé</h3>
+      </div>
+      <div class="modal-body">
+        <p class="text-center mb-4">
+          Le formulaire a été enregistré avec succès.
+        </p>
+        <div class="success-info">
+          <div class="info-item">
+            <span class="info-label">IUN généré :</span>
+            <span class="info-value">{{ generatedIUN }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Date de saisie :</span>
+            <span class="info-value">{{ getCurrentDateTimeFormatted() }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="createNewForm()"
+        >
+          Nouveau formulaire
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary"
+            (click)="goToDashboard()"
+        >
+          Retour au tableau de bord
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

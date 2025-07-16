@@ -312,9 +312,9 @@ export class Step6Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
+  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
-  showValidationErrors = false;
 
   ngOnInit(): void {
     this.initializeData();
@@ -344,12 +344,24 @@ export class Step6Component implements OnInit, OnChanges {
   private validateStep(): void {
     let isValid = true;
 
+    // Vérifier si le nombre de décès est renseigné
+    if (this.localData.nombreDecesSpaDansEntourage === undefined || 
+        this.localData.nombreDecesSpaDansEntourage === null) {
+      isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
+    }
+
     // Si le nombre de décès est >= 1, les causes sont obligatoires
     if (this.localData.nombreDecesSpaDansEntourage &&
         this.localData.nombreDecesSpaDansEntourage >= 1 &&
         (!this.localData.causesDecesSpaDansEntourage ||
             this.localData.causesDecesSpaDansEntourage.trim() === '')) {
       isValid = false;
+      if (this.showValidationErrors) {
+        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      }
     }
 
     // Cette étape est généralement valide car les champs sont optionnels
