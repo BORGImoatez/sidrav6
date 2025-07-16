@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
-import * as SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { Client, StompSubscription } from '@stomp/stompjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,94 +11,97 @@ import { Client } from '@stomp/stompjs';
 export class WebSocketService {
   private stompClient: Client | null = null;
   private state = new BehaviorSubject<boolean>(false);
-  private subscriptions: Map<string, (message: any) => void> = new Map();
-  private serverUrl = (environment.apiUrl || 'http://localhost:9090/api') + '/ws';
+
+  private subscriptions: Map<string, { callback: (message: any) => void, subscription?: StompSubscription }> = new Map();
+
+  private token = localStorage.getItem('sidra_token') || '';
+  private serverUrl = (environment.apiUrl || 'http://localhost:9090/api') + `/ws?token=${this.token}`;
 
   constructor(private authService: AuthService) {}
 
   connect(): Observable<boolean> {
-    if (this.stompClient && this.stompClient.connected) {
+    if (this.stompClient?.active || this.stompClient?.connected) {
+      console.log('WebSocket already connecting or connected');
       return this.state.asObservable();
     }
 
-    // Disconnect if already connected
+    // Disconnect cleanly if any previous connection exists
     if (this.stompClient) {
       this.disconnect();
     }
 
-    const token = localStorage.getItem('sidra_token') || '';
-    
-    // Create a new STOMP client
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(this.serverUrl),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`
-      },
-      debug: function(str) {
-        console.log('STOMP: ' + str);
-      },
-      reconnectDelay: 5000,
+      debug: str => console.log('STOMP: ' + str),
+      reconnectDelay: 0, // ✅ ne tente pas de reconnexion automatique
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000
     });
 
-    // Connect handlers
-    this.stompClient.onConnect = (frame) => {
+    this.stompClient.onConnect = () => {
       console.log('STOMP connection established');
       this.state.next(true);
-      
-      // Resubscribe to all previous subscriptions
-      this.subscriptions.forEach((callback, destination) => {
-        this.subscribeToDestination(destination, callback);
+
+      // Resubscribe to all stored destinations
+      this.subscriptions.forEach((entry, destination) => {
+        this.subscribeToDestination(destination, entry.callback);
       });
     };
 
-    this.stompClient.onStompError = (frame) => {
+    this.stompClient.onStompError = frame => {
       console.error('STOMP error:', frame.headers['message']);
       this.state.next(false);
     };
 
     this.stompClient.onWebSocketClose = () => {
-      console.log('WebSocket connection closed');
+      console.warn('WebSocket connection closed');
       this.state.next(false);
     };
 
-    this.stompClient.onWebSocketError = (error) => {
+    this.stompClient.onWebSocketError = error => {
       console.error('WebSocket error:', error);
       this.state.next(false);
     };
 
-    // Activate the client
     this.stompClient.activate();
-
     return this.state.asObservable();
   }
 
   disconnect(): void {
+    // Unsubscribe from all
+    this.subscriptions.forEach(entry => {
+      entry.subscription?.unsubscribe();
+    });
+    this.subscriptions.clear();
+
     if (this.stompClient) {
       if (this.stompClient.connected) {
         this.stompClient.deactivate();
       }
       this.stompClient = null;
-      this.state.next(false);
     }
+
+    this.state.next(false);
   }
 
   subscribe(destination: string, callback: (message: any) => void): void {
-    this.subscriptions.set(destination, callback);
+    if (this.subscriptions.has(destination)) {
+      console.warn(`Already subscribed to ${destination}`);
+      return;
+    }
 
-    // Subscribe if connected
-    if (this.stompClient && this.stompClient.connected) {
+    this.subscriptions.set(destination, { callback });
+
+    if (this.stompClient?.connected) {
       this.subscribeToDestination(destination, callback);
     } else if (!this.stompClient) {
-      // Connect if not already connecting
       this.connect().subscribe();
     }
   }
 
   private subscribeToDestination(destination: string, callback: (message: any) => void): void {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.subscribe(destination, (message) => {
+    if (this.stompClient?.connected) {
+      const subscription = this.stompClient.subscribe(destination, (message) => {
         try {
           const payload = JSON.parse(message.body);
           callback(payload);
@@ -106,27 +109,39 @@ export class WebSocketService {
           console.error('Error parsing message:', error);
         }
       });
+      const entry = this.subscriptions.get(destination);
+      if (entry) {
+        entry.subscription = subscription;
+        this.subscriptions.set(destination, entry);
+      }
     }
   }
 
   unsubscribe(destination: string): void {
-    if (this.subscriptions.has(destination)) {
-      this.subscriptions.delete(destination);
+    const entry = this.subscriptions.get(destination);
+    if (entry?.subscription) {
+      entry.subscription.unsubscribe();
     }
+    this.subscriptions.delete(destination);
   }
 
   send(destination: string, message: any): void {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.publish({
+    if (this.isConnected() && this.isSocketOpen()) {
+      this.stompClient!.publish({
         destination: destination,
         body: JSON.stringify(message)
       });
     } else {
-      console.error('Cannot send message, STOMP client not connected');
+      console.warn('Cannot send message, STOMP client not connected or WebSocket is not open');
     }
   }
 
   isConnected(): boolean {
     return this.stompClient !== null && this.stompClient.connected;
+  }
+
+  private isSocketOpen(): boolean {
+    const socket = (this.stompClient as any)?.webSocket as WebSocket;
+    return socket?.readyState === WebSocket.OPEN;
   }
 }

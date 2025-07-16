@@ -70,7 +70,7 @@ export class FormulaireService {
     createFormulaire(formulaireData: any): Observable<any> {
         // Adapter les noms des propriétés pour correspondre à ce qu'attend le backend
         const requestData = this.prepareFormDataForApi(formulaireData);
-        
+
         return this.http.post<any>(`${this.apiUrl}/formulaires`, requestData, {
             headers: this.authService.getAuthHeaders()
         }).pipe(
@@ -87,7 +87,7 @@ export class FormulaireService {
     updateFormulaire(id: number, formulaireData: any): Observable<FormulaireData> {
         // Adapter les noms des propriétés pour correspondre à ce qu'attend le backend
         const requestData = this.prepareFormDataForApi(formulaireData);
-        
+
         console.log('Mise à jour du formulaire:', id, formulaireData);
         return this.http.put<any>(`${this.apiUrl}/formulaires/${id}`, requestData, {
             headers: this.authService.getAuthHeaders()
@@ -122,75 +122,75 @@ export class FormulaireService {
             })
         );
     }
-    
+
     /**
      * Prépare les données du formulaire pour l'API backend
      */
     private prepareFormDataForApi(formData: any): any {
         // Créer une copie pour éviter de modifier l'original
         const requestData = JSON.parse(JSON.stringify(formData));
-        
+
         // Renommer les propriétés pour correspondre aux attentes du backend
         if (formData.typeAlcool) {
             requestData.typeAlcoolDto = formData.typeAlcool;
             delete requestData.typeAlcool;
         }
-        
+
         if (formData.entourageSpa) {
             requestData.entourageSpaDtO = formData.entourageSpa;
             delete requestData.entourageSpa;
         }
-        
+
         if (formData.typeSpaEntourage) {
             requestData.typeSpaEntourageDto = formData.typeSpaEntourage;
             delete requestData.typeSpaEntourage;
         }
-        
+
         if (formData.droguesActuelles) {
             requestData.droguesActuellesDto = formData.droguesActuelles;
             delete requestData.droguesActuelles;
         }
-        
+
         if (formData.substanceInitiation) {
             requestData.substanceInitiationDto = formData.substanceInitiation;
             delete requestData.substanceInitiation;
         }
-        
+
         if (formData.substancePrincipale) {
             requestData.substancePrincipaleDto = formData.substancePrincipale;
             delete requestData.substancePrincipale;
         }
-        
+
         if (formData.voieAdministration) {
             requestData.voieAdministrationDto = formData.voieAdministration;
             delete requestData.voieAdministration;
         }
-        
+
         if (formData.testVih) {
             requestData.testVihDto = formData.testVih;
             delete requestData.testVih;
         }
-        
+
         if (formData.testVhc) {
             requestData.testVhcDto = formData.testVhc;
             delete requestData.testVhc;
         }
-        
+
         if (formData.testVhb) {
             requestData.testVhbDto = formData.testVhb;
             delete requestData.testVhb;
         }
-        
+
         if (formData.testSyphilis) {
             requestData.testSyphilisDto = formData.testSyphilis;
             delete requestData.testSyphilis;
         }
-        
+
         if (formData.tentativeSevrageDetails) {
             requestData.tentativeSevrageDetailsDto = formData.tentativeSevrageDetails;
             delete requestData.tentativeSevrageDetails;
         }
-        
+
         return requestData;
     }
 }

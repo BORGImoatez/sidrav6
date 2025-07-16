@@ -110,18 +110,15 @@ import { CountryService, Country } from '../../../../../services/country.service
               <!-- 2) Ministère -->
               <div class="form-group" *ngIf="localData.secteur === 'PUBLIC'">
                 <label class="form-label">2) Ministère</label>
-                <select
-                    class="form-select"
+                <input
+                    type="text"
+                    class="form-input"
                     [(ngModel)]="localData.ministere"
                     name="ministere"
-                    [disabled]="!!userStructureInfo?.hasStructure"
+                    placeholder="Nom de la ministere"
+                      [disabled]="!!userStructureInfo?.hasStructure"
                 >
-                  <option value="">Sélectionner un ministère</option>
-                  <option value="SANTE">Ministère de la Santé</option>
-                  <option value="AFFAIRES_SOCIALES">Ministère des Affaires Sociales</option>
-                  <option value="EDUCATION">Ministère de l'Éducation</option>
-                  <option value="JEUNESSE_SPORT">Ministère de la Jeunesse et du Sport</option>
-                </select>
+                
               </div>
 
               <!-- 3) Structure / Centre -->
@@ -2479,13 +2476,13 @@ export class Step1Component implements OnInit, OnChanges {
       return;
     }
 
-    // Validation de la cause de récidive si "Rechute" est sélectionné
+    /*Validation de la cause de récidive si "Rechute" est sélectionné
     if (this.localData.consultationAnterieure === true &&
         this.localData.motifConsultationAnterieure === 'Rechute' &&
         !this.localData.causeRecidive) {
       this.validationChange.emit(false);
       return;
-    }
+    }*/
 
     const isValid = required.every(field => {
       const value = (this.localData as any)[field];

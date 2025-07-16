@@ -891,82 +891,21 @@ export class FormulaireComponent implements OnInit {
       formData.dateConsultation = this.formatDate(formData.dateConsultation);
     }
 
-    // Renommer les propriétés pour correspondre aux attentes du backend
-    if (formData.typeAlcool) {
-      formData.typeAlcoolDto = formData.typeAlcool;
-      delete formData.typeAlcool;
-    }
-    
-    if (formData.entourageSpa) {
-      formData.entourageSpaDtO = formData.entourageSpa;
-      delete formData.entourageSpa;
-    }
-    
-    if (formData.typeSpaEntourage) {
-      formData.typeSpaEntourageDto = formData.typeSpaEntourage;
-      delete formData.typeSpaEntourage;
-    }
-    
-    if (formData.droguesActuelles) {
-      formData.droguesActuellesDto = formData.droguesActuelles;
-      delete formData.droguesActuelles;
-    }
-    
-    if (formData.substanceInitiation) {
-      formData.substanceInitiationDto = formData.substanceInitiation;
-      delete formData.substanceInitiation;
-    }
-    
-    if (formData.substancePrincipale) {
-      formData.substancePrincipaleDto = formData.substancePrincipale;
-      delete formData.substancePrincipale;
-    }
-    
-    if (formData.voieAdministration) {
-      formData.voieAdministrationDto = formData.voieAdministration;
-      delete formData.voieAdministration;
-    }
-    
-    if (formData.testVih) {
-      formData.testVihDto = formData.testVih;
-      delete formData.testVih;
-    }
-    
-    if (formData.testVhc) {
-      formData.testVhcDto = formData.testVhc;
-      delete formData.testVhc;
-    }
-    
-    if (formData.testVhb) {
-      formData.testVhbDto = formData.testVhb;
-      delete formData.testVhb;
-    }
-    
-    if (formData.testSyphilis) {
-      formData.testSyphilisDto = formData.testSyphilis;
-      delete formData.testSyphilis;
-    }
-    
-    if (formData.tentativeSevrageDetails) {
-      formData.tentativeSevrageDetailsDto = formData.tentativeSevrageDetails;
-      delete formData.tentativeSevrageDetails;
-    }
-    
     // Ensure all JSON fields are objects (not strings)
     formData.cadreConsultation = formData.cadreConsultation || {};
     formData.origineDemande = formData.origineDemande || {};
-    formData.typeAlcoolDto = formData.typeAlcoolDto || {};
-    formData.entourageSpaDtO = formData.entourageSpaDtO || {};
-    formData.typeSpaEntourageDto = formData.typeSpaEntourageDto || {};
-    formData.droguesActuellesDto = formData.droguesActuellesDto || {};
-    formData.substanceInitiationDto = formData.substanceInitiationDto || {};
-    formData.substancePrincipaleDto = formData.substancePrincipaleDto || {};
-    formData.voieAdministrationDto = formData.voieAdministrationDto || {};
-    formData.testVihDto = formData.testVihDto || {};
-    formData.testVhcDto = formData.testVhcDto || {};
-    formData.testVhbDto = formData.testVhbDto || {};
-    formData.testSyphilisDto = formData.testSyphilisDto || {};
-    formData.tentativeSevrageDetailsDto = formData.tentativeSevrageDetailsDto || {};
+    formData.typeAlcool = formData.typeAlcool || {};
+    formData.entourageSpa = formData.entourageSpa || {};
+    formData.typeSpaEntourage = formData.typeSpaEntourage || {};
+    formData.droguesActuelles = formData.droguesActuelles || {};
+    formData.substanceInitiation = formData.substanceInitiation || {};
+    formData.substancePrincipale = formData.substancePrincipale || {};
+    formData.voieAdministration = formData.voieAdministration || {};
+    formData.testVih = formData.testVih || {};
+    formData.testVhc = formData.testVhc || {};
+    formData.testVhb = formData.testVhb || {};
+    formData.testSyphilis = formData.testSyphilis || {};
+    formData.tentativeSevrageDetails = formData.tentativeSevrageDetails || {};
 
     return formData;
   }

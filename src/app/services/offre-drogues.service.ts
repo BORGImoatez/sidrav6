@@ -104,28 +104,28 @@ export class OffreDroguesService {
   // Get by period
   getByPeriod(startDate: string, endDate: string): Observable<OffreDroguesListItem[]> {
     return this.http.get<OffreDroguesListItem[]>(
-      `${this.apiUrl}/offre-drogues?startDate=${startDate}&endDate=${endDate}`, {
-        headers: this.authService.getAuthHeaders()
-      }
+        `${this.apiUrl}/offre-drogues?startDate=${startDate}&endDate=${endDate}`, {
+          headers: this.authService.getAuthHeaders()
+        }
     ).pipe(
-      catchError(error => {
-        console.error('Erreur lors du chargement des données par période:', error);
-        return throwError(() => error);
-      })
+        catchError(error => {
+          console.error('Erreur lors du chargement des données par période:', error);
+          return throwError(() => error);
+        })
     );
   }
 
   // Get last entry before a specific date
   getLastEntryBefore(date: string, currentId: number): Observable<OffreDrogues> {
     return this.http.get<OffreDrogues>(
-      `${this.apiUrl}/offre-drogues/last-before?date=${date}&currentId=${currentId}`, {
-        headers: this.authService.getAuthHeaders()
-      }
+        `${this.apiUrl}/offre-drogues/last-before?date=${date}&currentId=${currentId}`, {
+          headers: this.authService.getAuthHeaders()
+        }
     ).pipe(
-      catchError(error => {
-        console.error('Erreur lors du chargement de la dernière saisie:', error);
-        return throwError(() => error);
-      })
+        catchError(error => {
+          console.error('Erreur lors du chargement de la dernière saisie:', error);
+          return throwError(() => error);
+        })
     );
   }
 

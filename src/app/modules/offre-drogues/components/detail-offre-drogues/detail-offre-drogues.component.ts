@@ -22,18 +22,18 @@ import { UserRole } from '../../../../models/user.model';
           </p>
         </div>
         <div class="header-actions">
-          <button 
-            *ngIf="isExterne() && canEdit()"
-            class="btn btn-secondary"
-            [routerLink]="['/offre-drogues/modifier', data?.id]"
-            type="button"
+          <button
+              *ngIf="isExterne() && canEdit()"
+              class="btn btn-secondary"
+              [routerLink]="['/offre-drogues/modifier', data?.id]"
+              type="button"
           >
             ✏️ Modifier
           </button>
-          <button 
-            class="btn btn-secondary"
-            (click)="goBack()"
-            type="button"
+          <button
+              class="btn btn-secondary"
+              (click)="goBack()"
+              type="button"
           >
             ← Retour
           </button>
@@ -54,7 +54,7 @@ import { UserRole } from '../../../../models/user.model';
           <div class="card-body">
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">Date de saisie</span>
+                <span class="info-label">Date de saisie de l'offre du drogues</span>
                 <span class="info-value">{{ data.dateSaisie | date:'dd/MM/yyyy' }}</span>
               </div>
               <div class="info-item" *ngIf="data.structure">
@@ -90,56 +90,56 @@ import { UserRole } from '../../../../models/user.model';
             <div class="table-responsive">
               <table class="detail-table">
                 <thead>
-                  <tr>
-                    <th>Nature de la substance saisie</th>
-                    <th>Quantité saisie</th>
-                    <th>Dernière saisie ({{ lastEntry?.dateSaisie | date:'dd/MM/yyyy' }})</th>
-                    <th>Cumul</th>
-                  </tr>
+                <tr>
+                  <th>Nature de la substance saisie</th>
+                  <th>Quantité saisie</th>
+                  <th>Dernière saisie ({{ lastEntry?.dateSaisie | date:'dd/MM/yyyy' }})</th>
+                  <th>Cumul</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Cannabis (kg)</td>
-                    <td>{{ data.quantitesDrogues.cannabis || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.cannabis || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.cannabis, lastEntry?.quantitesDrogues?.cannabis) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Comprimés Tableau A</td>
-                    <td>{{ data.quantitesDrogues.comprimesTableauA || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.comprimesTableauA || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.comprimesTableauA, lastEntry?.quantitesDrogues?.comprimesTableauA) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Ecstasy (comprimé)</td>
-                    <td>{{ data.quantitesDrogues.ecstasyComprime || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.ecstasyComprime || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyComprime, lastEntry?.quantitesDrogues?.ecstasyComprime) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Ecstasy (poudre ; en g)</td>
-                    <td>{{ data.quantitesDrogues.ecstasyPoudre || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.ecstasyPoudre || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyPoudre, lastEntry?.quantitesDrogues?.ecstasyPoudre) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Subutex (comprimé)</td>
-                    <td>{{ data.quantitesDrogues.subutex || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.subutex || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.subutex, lastEntry?.quantitesDrogues?.subutex) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Cocaïne (g)</td>
-                    <td>{{ data.quantitesDrogues.cocaine || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.cocaine || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.cocaine, lastEntry?.quantitesDrogues?.cocaine) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Héroïne (g)</td>
-                    <td>{{ data.quantitesDrogues.heroine || '-' }}</td>
-                    <td>{{ lastEntry?.quantitesDrogues?.heroine || '-' }}</td>
-                    <td>{{ getCumulativeValue(data.quantitesDrogues.heroine, lastEntry?.quantitesDrogues?.heroine) }}</td>
-                  </tr>
+                <tr>
+                  <td>Cannabis (kg)</td>
+                  <td>{{ data.quantitesDrogues.cannabis || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.cannabis || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.cannabis, lastEntry?.quantitesDrogues?.cannabis) }}</td>
+                </tr>
+                <tr>
+                  <td>Comprimés Tableau A</td>
+                  <td>{{ data.quantitesDrogues.comprimesTableauA || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.comprimesTableauA || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.comprimesTableauA, lastEntry?.quantitesDrogues?.comprimesTableauA) }}</td>
+                </tr>
+                <tr>
+                  <td>Ecstasy (comprimé)</td>
+                  <td>{{ data.quantitesDrogues.ecstasyComprime || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.ecstasyComprime || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyComprime, lastEntry?.quantitesDrogues?.ecstasyComprime) }}</td>
+                </tr>
+                <tr>
+                  <td>Ecstasy (poudre ; en g)</td>
+                  <td>{{ data.quantitesDrogues.ecstasyPoudre || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.ecstasyPoudre || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.ecstasyPoudre, lastEntry?.quantitesDrogues?.ecstasyPoudre) }}</td>
+                </tr>
+                <tr>
+                  <td>Subutex (comprimé)</td>
+                  <td>{{ data.quantitesDrogues.subutex || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.subutex || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.subutex, lastEntry?.quantitesDrogues?.subutex) }}</td>
+                </tr>
+                <tr>
+                  <td>Cocaïne (g)</td>
+                  <td>{{ data.quantitesDrogues.cocaine || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.cocaine || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.cocaine, lastEntry?.quantitesDrogues?.cocaine) }}</td>
+                </tr>
+                <tr>
+                  <td>Héroïne (g)</td>
+                  <td>{{ data.quantitesDrogues.heroine || '-' }}</td>
+                  <td>{{ lastEntry?.quantitesDrogues?.heroine || '-' }}</td>
+                  <td>{{ getCumulativeValue(data.quantitesDrogues.heroine, lastEntry?.quantitesDrogues?.heroine) }}</td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -155,28 +155,28 @@ import { UserRole } from '../../../../models/user.model';
             <div class="table-responsive">
               <table class="detail-table">
                 <thead>
-                  <tr>
-                    <th>Nature d'accusation</th>
-                    <th>Nombre</th>
-                    <th>%</th>
-                  </tr>
+                <tr>
+                  <th>Nature d'accusation</th>
+                  <th>Nombre</th>
+                  <th>%</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Consommateur</td>
-                    <td>{{ data.personnesInculpees.consommateur.nombre || '-' }}</td>
-                    <td>{{ data.personnesInculpees.consommateur.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td>Vendeur</td>
-                    <td>{{ data.personnesInculpees.vendeur.nombre || '-' }}</td>
-                    <td>{{ data.personnesInculpees.vendeur.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td>Trafiquant</td>
-                    <td>{{ data.personnesInculpees.trafiquant.nombre || '-' }}</td>
-                    <td>{{ data.personnesInculpees.trafiquant.pourcentage || '-' }}%</td>
-                  </tr>
+                <tr>
+                  <td>Consommateur</td>
+                  <td>{{ data.personnesInculpees.consommateur.nombre || '-' }}</td>
+                  <td>{{ data.personnesInculpees.consommateur.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td>Vendeur</td>
+                  <td>{{ data.personnesInculpees.vendeur.nombre || '-' }}</td>
+                  <td>{{ data.personnesInculpees.vendeur.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td>Trafiquant</td>
+                  <td>{{ data.personnesInculpees.trafiquant.nombre || '-' }}</td>
+                  <td>{{ data.personnesInculpees.trafiquant.pourcentage || '-' }}%</td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -192,154 +192,154 @@ import { UserRole } from '../../../../models/user.model';
             <div class="table-responsive">
               <table class="detail-table">
                 <thead>
-                  <tr>
-                    <th>Caractéristiques sociodémographiques</th>
-                    <th>Nombre</th>
-                    <th>%</th>
-                  </tr>
+                <tr>
+                  <th>Caractéristiques sociodémographiques</th>
+                  <th>Nombre</th>
+                  <th>%</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <!-- Genre -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>Genre</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Masculin</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.genre.masculin.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.genre.masculin.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Féminin</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.genre.feminin.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.genre.feminin.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- Genre -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>Genre</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Masculin</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.genre.masculin.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.genre.masculin.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Féminin</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.genre.feminin.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.genre.feminin.pourcentage || '-' }}%</td>
+                </tr>
 
-                  <!-- Age -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>Age</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">&lt;12 ans</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.moins12ans.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.moins12ans.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">&lt;18 ans</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.moins18ans.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.moins18ans.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">18-40</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.entre18et40.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.entre18et40.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">&gt; 40</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.plus40ans.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.age.plus40ans.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- Age -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>Age</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">&lt;12 ans</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.moins12ans.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.moins12ans.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">&lt;18 ans</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.moins18ans.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.moins18ans.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">18-40</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.entre18et40.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.entre18et40.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">&gt; 40</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.plus40ans.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.age.plus40ans.pourcentage || '-' }}%</td>
+                </tr>
 
-                  <!-- Nationalité -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>Nationalité</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Tunisienne</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.tunisienne.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.tunisienne.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Maghrébine</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.maghrebine.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.maghrebine.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Autres</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.autres.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.nationalite.autres.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- Nationalité -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>Nationalité</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Tunisienne</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.tunisienne.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.tunisienne.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Maghrébine</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.maghrebine.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.maghrebine.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Autres</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.autres.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.nationalite.autres.pourcentage || '-' }}%</td>
+                </tr>
 
-                  <!-- État civil -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>État civil</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Célibataire</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.celibataire.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.celibataire.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Marié</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.marie.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.marie.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Divorcé</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.divorce.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.divorce.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Veuf</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.veuf.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatCivil.veuf.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- État civil -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>État civil</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Célibataire</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.celibataire.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.celibataire.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Marié</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.marie.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.marie.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Divorcé</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.divorce.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.divorce.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Veuf</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.veuf.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatCivil.veuf.pourcentage || '-' }}%</td>
+                </tr>
 
-                  <!-- État professionnel -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>État professionnel</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Élève</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.eleve.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.eleve.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Étudiant</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.etudiant.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.etudiant.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Ouvrier</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.ouvrier.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.ouvrier.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Fonctionnaire</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.fonctionnaire.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.fonctionnaire.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- État professionnel -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>État professionnel</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Élève</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.eleve.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.eleve.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Étudiant</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.etudiant.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.etudiant.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Ouvrier</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.ouvrier.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.ouvrier.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Fonctionnaire</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.fonctionnaire.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.etatProfessionnel.fonctionnaire.pourcentage || '-' }}%</td>
+                </tr>
 
-                  <!-- Niveau socioéconomique -->
-                  <tr class="category-header">
-                    <td colspan="3"><strong>Niveau socioéconomique selon carnet du CNAM</strong></td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">Carte d'indigent 1 ou 2 ou carte AMEN</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carteIndigent.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carteIndigent.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">CARNET CNAM de santé publique</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamPublique.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamPublique.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">CARNET CNAM de médecine de famille</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamFamille.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamFamille.pourcentage || '-' }}%</td>
-                  </tr>
-                  <tr>
-                    <td class="subcategory">CARNET CNAM de remboursement</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamRemboursement.nombre || '-' }}</td>
-                    <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamRemboursement.pourcentage || '-' }}%</td>
-                  </tr>
+                <!-- Niveau socioéconomique -->
+                <tr class="category-header">
+                  <td colspan="3"><strong>Niveau socioéconomique selon carnet du CNAM</strong></td>
+                </tr>
+                <tr>
+                  <td class="subcategory">Carte d'indigent 1 ou 2 ou carte AMEN</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carteIndigent.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carteIndigent.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">CARNET CNAM de santé publique</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamPublique.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamPublique.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">CARNET CNAM de médecine de famille</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamFamille.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamFamille.pourcentage || '-' }}%</td>
+                </tr>
+                <tr>
+                  <td class="subcategory">CARNET CNAM de remboursement</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamRemboursement.nombre || '-' }}</td>
+                  <td>{{ data.caracteristiquesSociodemographiques.niveauSocioeconomique.carnetCnamRemboursement.pourcentage || '-' }}%</td>
+                </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Dernière saisie et cumul -->
       <div *ngIf="!isLoading && data && lastEntry" class="info-section card">
         <div class="card-header">
@@ -534,19 +534,19 @@ import { UserRole } from '../../../../models/user.model';
         flex-direction: column;
         align-items: stretch;
       }
-      
+
       .header-actions {
         justify-content: flex-end;
       }
-      
+
       .info-grid {
         grid-template-columns: 1fr;
       }
-      
+
       .detail-table {
         font-size: 12px;
       }
-      
+
       .detail-table th,
       .detail-table td {
         padding: var(--spacing-2);
@@ -561,10 +561,10 @@ export class DetailOffreDroguesComponent implements OnInit {
   lastEntry: any = null;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private offreDroguesService: OffreDroguesService,
-    private authService: AuthService
+      private router: Router,
+      private route: ActivatedRoute,
+      private offreDroguesService: OffreDroguesService,
+      private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -597,7 +597,7 @@ export class DetailOffreDroguesComponent implements OnInit {
 
   private loadLastEntry(): void {
     if (!this.data || !this.data.dateSaisie) return;
-    
+
     // Récupérer la dernière saisie avant celle-ci
     this.offreDroguesService.getLastEntryBefore(this.data.dateSaisie, this.data.id).subscribe({
       next: (lastEntry) => {
@@ -611,11 +611,11 @@ export class DetailOffreDroguesComponent implements OnInit {
 
   getCumulativeValue(current: number | null, previous: number | null): string {
     if (current === null && previous === null) return '-';
-    
+
     const currentValue = current || 0;
     const previousValue = previous || 0;
     const sum = currentValue + previousValue;
-    
+
     return sum.toString();
   }
 
@@ -627,7 +627,7 @@ export class DetailOffreDroguesComponent implements OnInit {
     if (!this.data || !this.isExterne()) {
       return false;
     }
-    
+
     const currentUser = this.authService.getCurrentUser();
     return currentUser?.id === this.data.utilisateurId;
   }

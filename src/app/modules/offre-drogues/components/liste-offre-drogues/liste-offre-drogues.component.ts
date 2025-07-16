@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OffreDroguesService } from '../../../../services/offre-drogues.service';
 import { AuthService } from '../../../../services/auth.service';
- import { UserRole } from '../../../../models/user.model';
+import { UserRole } from '../../../../models/user.model';
 import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
 
 @Component({
@@ -18,19 +18,19 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
           <h1 class="page-title">Indicateurs de l'offre de drogues</h1>
           <p *ngIf="isExterne()" class="page-description">
             Gérer vos saisies d'indicateurs
-            
-           
+
+
           </p>
           <p *ngIf="!isExterne()" class="page-description">
-          Consulter les indicateurs saisis par les structures
+            Consulter les indicateurs saisis par les structures
 
           </p>
         </div>
-        <button 
-          *ngIf="isExterne()"
-          class="btn btn-primary"
-          routerLink="/offre-drogues/nouveau"
-          type="button"
+        <button
+            *ngIf="isExterne()"
+            class="btn btn-primary"
+            routerLink="/offre-drogues/nouveau"
+            type="button"
         >
           <span class="btn-icon">➕</span>
           Nouvelle saisie
@@ -44,21 +44,21 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
             <div class="filter-group">
               <label class="form-label">Rechercher</label>
               <input
-                type="text"
-                class="form-input"
-                placeholder="Structure, utilisateur..."
-                [(ngModel)]="searchTerm"
-                (input)="filterData()"
+                  type="text"
+                  class="form-input"
+                  placeholder="Structure, utilisateur..."
+                  [(ngModel)]="searchTerm"
+                  (input)="filterData()"
               >
             </div>
-            
+
             <div class="filter-group">
               <label class="form-label">Date de saisie de l'offre de drogue</label>
               <input
-                type="date"
-                class="form-input"
-                [(ngModel)]="selectedDate"
-                (change)="filterData()"
+                  type="date"
+                  class="form-input"
+                  [(ngModel)]="selectedDate"
+                  (change)="filterData()"
               >
             </div>
 
@@ -74,7 +74,7 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
               </select>
             </div>
           </div>
-          
+
           <div class="filters-grid">
             <div class="filter-group">
               <label class="form-label">Période personnalisée</label>
@@ -82,25 +82,25 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
                 <div class="date-input-group">
                   <label class="date-label">Du</label>
                   <input
-                    type="date"
-                    class="form-input"
-                    [(ngModel)]="startDate"
-                    (change)="filterByCustomPeriod()"
+                      type="date"
+                      class="form-input"
+                      [(ngModel)]="startDate"
+                      (change)="filterByCustomPeriod()"
                   >
                 </div>
                 <div class="date-input-group">
                   <label class="date-label">Au</label>
                   <input
-                    type="date"
-                    class="form-input"
-                    [(ngModel)]="endDate"
-                    (change)="filterByCustomPeriod()"
+                      type="date"
+                      class="form-input"
+                      [(ngModel)]="endDate"
+                      (change)="filterByCustomPeriod()"
                   >
                 </div>
-                <button 
-                  class="btn btn-sm btn-primary"
-                  (click)="filterByCustomPeriod()"
-                  type="button"
+                <button
+                    class="btn btn-sm btn-primary"
+                    (click)="filterByCustomPeriod()"
+                    type="button"
                 >
                   Filtrer
                 </button>
@@ -117,74 +117,74 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
             {{ isExterne() ? 'Mes saisies' : 'Toutes les saisies' }} ({{ filteredData.length }})
           </h3>
         </div>
-        
+
         <div class="card-body p-0" *ngIf="!isLoading; else loadingTemplate">
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Date de saisie</th>
-                  <th *ngIf="!isExterne()">Structure</th>
-                  <th *ngIf="!isExterne()">Utilisateur</th>
-                  <th>Date de création</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>Date de saisie de l'offre de drogues</th>
+                <th *ngIf="!isExterne()">Structure</th>
+                <th *ngIf="!isExterne()">Utilisateur</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of filteredData" class="data-row">
-                  <td>
-                    <div class="date-info">
-                      <div class="date-value">{{ item.dateSaisie | date:'dd/MM/yyyy' }}</div>
-                      <div class="date-day">{{ item.dateSaisie | date:'EEEE' }}</div>
-                    </div>
-                  </td>
-                  <td *ngIf="!isExterne()">
-                    <div class="structure-info">
-                      <div class="structure-name">{{ item.structure.nom }}</div>
-                      <div class="structure-type">{{ item.structure.type }}</div>
-                    </div>
-                  </td>
-                  <td *ngIf="!isExterne()">
-                    <div class="user-info">
-                      <div class="user-name">{{ item.utilisateur.prenom }} {{ item.utilisateur.nom }}</div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="creation-date">
-                      {{ item.dateCreation | date:'dd/MM/yyyy HH:mm' }}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="actions-menu">
-                      <button 
+              <tr *ngFor="let item of filteredData" class="data-row">
+                <td>
+                  <div class="date-info">
+                    <div class="date-value">{{ item.dateSaisie | date:'dd/MM/yyyy' }}</div>
+                    <div class="date-day">{{ item.dateSaisie | date:'EEEE' }}</div>
+                  </div>
+                </td>
+                <td *ngIf="!isExterne()">
+                  <div class="structure-info">
+                    <div class="structure-name">{{ item.structure.nom }}</div>
+                    <div class="structure-type">{{ item.structure.type }}</div>
+                  </div>
+                </td>
+                <td *ngIf="!isExterne()">
+                  <div class="user-info">
+                    <div class="user-name">{{ item.utilisateur.prenom }} {{ item.utilisateur.nom }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="creation-date">
+                    {{ item.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="actions-menu">
+                    <button
                         class="btn btn-sm btn-secondary"
                         [routerLink]="['/offre-drogues/detail', item.id]"
                         type="button"
                         title="Voir les détails"
-                      >
-                        👁️
-                      </button>
-                      <button 
+                    >
+                      👁️
+                    </button>
+                    <button
                         *ngIf="isExterne()"
                         class="btn btn-sm btn-secondary"
                         [routerLink]="['/offre-drogues/modifier', item.id]"
                         type="button"
                         title="Modifier"
-                      >
-                        ✏️
-                      </button>
-                      <button 
+                    >
+                      ✏️
+                    </button>
+                    <button
                         *ngIf="isExterne()"
                         class="btn btn-sm btn-danger"
                         (click)="confirmDelete(item)"
                         type="button"
                         title="Supprimer"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -199,7 +199,7 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
           </div>
           <div class="modal-body">
             <p>
-              Êtes-vous sûr de vouloir supprimer la saisie du 
+              Êtes-vous sûr de vouloir supprimer la saisie du
               <strong>{{ itemToDelete?.dateSaisie | date:'dd/MM/yyyy' }}</strong> ?
             </p>
             <p class="text-sm text-error">
@@ -207,19 +207,19 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
             </p>
           </div>
           <div class="modal-actions">
-            <button 
-              type="button" 
-              class="btn btn-secondary"
-              (click)="closeDeleteModal()"
-              [disabled]="isDeleting"
+            <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeDeleteModal()"
+                [disabled]="isDeleting"
             >
               Annuler
             </button>
-            <button 
-              type="button" 
-              class="btn btn-danger"
-              (click)="deleteItem()"
-              [disabled]="isDeleting"
+            <button
+                type="button"
+                class="btn btn-danger"
+                (click)="deleteItem()"
+                [disabled]="isDeleting"
             >
               <span *ngIf="!isDeleting">Supprimer</span>
               <span *ngIf="isDeleting" class="flex items-center gap-2">
@@ -256,20 +256,20 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
     .header-content {
       flex: 1;
     }
-    
+
     .date-range-picker {
       display: flex;
       gap: var(--spacing-3);
       align-items: flex-end;
     }
-    
+
     .date-label {
       font-size: 12px;
       color: var(--gray-600);
       margin-bottom: var(--spacing-1);
       display: block;
     }
-    
+
     .mb-4 {
       margin-bottom: var(--spacing-4);
     }
@@ -485,25 +485,25 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
         flex-direction: column;
         align-items: stretch;
       }
-      
+
       .filters-grid {
         grid-template-columns: 1fr;
       }
-      
+
       .data-table {
         font-size: 14px;
       }
-      
+
       .data-table th,
       .data-table td {
         padding: var(--spacing-3);
       }
-      
+
       .modal-content {
         margin: var(--spacing-2);
         max-width: none;
       }
-      
+
       .date-range-picker {
         flex-direction: column;
         gap: var(--spacing-2);
@@ -514,25 +514,25 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
 export class ListeOffreDroguesComponent implements OnInit {
   data: any[] = [];
   filteredData: OffreDroguesListItem[] = [];
-  
+
   // Filtres
   searchTerm = '';
   selectedDate = '';
   startDate = '';
   endDate = '';
   selectedPeriod = '';
-  
+
   // États
   isLoading = false;
   isDeleting = false;
-  
+
   // Suppression
   showDeleteModal = false;
   itemToDelete: OffreDroguesListItem | null = null;
 
   constructor(
-    private offreDroguesService: OffreDroguesService,
-    private authService: AuthService
+      private offreDroguesService: OffreDroguesService,
+      private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -541,7 +541,7 @@ export class ListeOffreDroguesComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading = true;
-    
+
     this.offreDroguesService.getAll().subscribe({
       next: (data) => {
         this.data = data;
@@ -559,9 +559,9 @@ export class ListeOffreDroguesComponent implements OnInit {
     if (!this.startDate || !this.endDate) {
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     this.offreDroguesService.getByPeriod(this.startDate, this.endDate).subscribe({
       next: (data) => {
         this.data = data;
@@ -577,15 +577,15 @@ export class ListeOffreDroguesComponent implements OnInit {
 
   filterData(): void {
     this.filteredData = this.data.filter(item => {
-      const matchesSearch = !this.searchTerm || 
-        item.structure.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        `${item.utilisateur.prenom} ${item.utilisateur.nom}`.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
-      const matchesDate = !this.selectedDate || 
-        item.dateSaisie.toISOString().split('T')[0] === this.selectedDate;
-      
+      const matchesSearch = !this.searchTerm ||
+          item.structure.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          `${item.utilisateur.prenom} ${item.utilisateur.nom}`.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchesDate = !this.selectedDate ||
+          item.dateSaisie.toISOString().split('T')[0] === this.selectedDate;
+
       const matchesPeriod = this.matchesPeriod(item.dateSaisie);
-      
+
       return matchesSearch && matchesDate && matchesPeriod;
     });
   }
@@ -633,7 +633,7 @@ export class ListeOffreDroguesComponent implements OnInit {
     if (!this.itemToDelete) return;
 
     this.isDeleting = true;
-    
+
     this.offreDroguesService.delete(this.itemToDelete.id).subscribe({
       next: () => {
         this.isDeleting = false;

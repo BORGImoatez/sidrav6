@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChildren, QueryList, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="forgot-password-container">
       <div class="forgot-password-card card">
@@ -15,15 +15,15 @@ import { AuthService } from '../../services/auth.service';
           <div class="logo-placeholder">
             <img src="../../../assets/logo/logoMS.png" alt="">
           </div>
-          
+
           <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">
             SIDRA
           </h1>
-          
+
           <p class="text-center text-gray-600 mb-8">
             SYSTEME D'INFORMATION SUR LES DROGUES ET ADDICTIONS
           </p>
-          
+
           <div class="partners-logos">
             <div class="logo-placeholder">
               <img src="../../../assets/logo/logos.png" alt="">
@@ -50,7 +50,7 @@ import { AuthService } from '../../services/auth.service';
                   [(ngModel)]="telephone"
                   class="form-input"
                   [class.error]="showError && !telephone"
-                  placeholder="21612345678"
+                  placeholder="12345678"
                   required
                   [disabled]="isLoading"
               >
@@ -86,22 +86,24 @@ import { AuthService } from '../../services/auth.service';
           </p>
 
           <div class="otp-form">
-            <div class="otp-inputs">
-              <ng-container *ngFor="let digit of otpDigits; let i = index">
-                <input
-                    type="text"
-                    maxlength="1"
-                    class="otp-input"
-                    [(ngModel)]="otpDigits[i]"
-                    (keydown)="onOtpKeyDown($event, i)"
-                    (input)="onOtpInput(i)"
-                    (paste)="onOtpPaste($event)"
-                    #otpInput
-                    [disabled]="isLoading"
-                    autocomplete="off"
-                >
-              </ng-container>
-            </div>
+            <form [formGroup]="otpForm">
+              <div class="otp-inputs">
+                <ng-container *ngFor="let control of otpControls; let i = index">
+                  <input
+                      type="text"
+                      maxlength="1"
+                      class="otp-input"
+                      [formControlName]="'digit' + (i + 1)"
+                      (keydown)="onOtpKeyDown($event, i)"
+                      (input)="onOtpInput(i)"
+                      (paste)="onOtpPaste($event)"
+                      #otpInput
+                      [disabled]="isLoading"
+                      autocomplete="off"
+                  >
+                </ng-container>
+              </div>
+            </form>
 
             <div *ngIf="errorMessage" class="error-banner">
               <span>{{ errorMessage }}</span>
@@ -441,15 +443,20 @@ import { AuthService } from '../../services/auth.service';
       color: var(--success-500);
     }
 
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 480px) {
       .forgot-password-card {
         padding: var(--spacing-6);
       }
-      
+
       .partners-logos {
         grid-template-columns: repeat(2, 1fr);
       }
-      
+
       .logo-placeholder {
         height: 50px;
       }
@@ -457,7 +464,7 @@ import { AuthService } from '../../services/auth.service';
       .otp-inputs {
         gap: var(--spacing-2);
       }
-      
+
       .otp-input {
         width: 40px;
         height: 40px;
@@ -466,73 +473,112 @@ import { AuthService } from '../../services/auth.service';
     }
   `]
 })
-export class ForgotPasswordComponent implements OnInit {
+export class ForgotPasswordComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
+
   // Current step in the forgot password flow
   currentStep = 1;
-  
+
   // Step 1: Phone number
   telephone = '';
-  
-  // Step 2: OTP verification
-  otpDigits = ['', '', '', '', '', ''];
+
+  // Step 2: OTP verification (using reactive forms like the original component)
+  otpForm!: FormGroup;
+  otpControls = Array(6).fill(0);
   userId: number | null = null;
   timeRemaining = 300; // 5 minutes
   canResendIn = 0;
   remainingAttempts: number | null = null;
   blockedUntil: Date | null = null;
   isBlocked = false;
-  
+
   // Step 3: Password reset
   newPassword = '';
   confirmPassword = '';
-  
+
   // Common state
   isLoading = false;
   showError = false;
   errorMessage = '';
   successMessage = '';
-  
+
   // Timers
   private timers: any[] = [];
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+      private authService: AuthService,
+      private router: Router,
+      private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
-    // Initialize timers
+    this.initializeOtpForm();
     this.startTimers();
+  }
+  private startTimers(): void {
+    // Check for blocked status
+    const blockTimer = setInterval(() => {
+      if (this.blockedUntil && this.blockedUntil <= new Date()) {
+        this.blockedUntil = null;
+        this.isBlocked = false;
+        this.errorMessage = '';
+      }
+    }, 1000);
+
+    this.timers.push(blockTimer);
+  }
+  ngAfterViewInit(): void {
+    // Focus sur le premier input OTP quand on arrive à l'étape 2
+    if (this.currentStep === 2) {
+      setTimeout(() => {
+        this.focusOtpInput(0);
+      }, 100);
+    }
   }
 
   ngOnDestroy(): void {
-    // Clean up timers
     this.timers.forEach(timer => clearInterval(timer));
+  }
+
+  private initializeOtpForm(): void {
+    const formControls: { [key: string]: FormControl } = {};
+    for (let i = 0; i < 6; i++) {
+      formControls[`digit${i + 1}`] = new FormControl('', [
+        Validators.required,
+        Validators.pattern('[0-9]')
+      ]);
+    }
+    this.otpForm = this.fb.group(formControls);
   }
 
   // Step 1: Request OTP
   requestOtp(): void {
     this.showError = true;
     this.errorMessage = '';
-    
+
     if (!this.telephone) {
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     this.authService.requestPasswordResetOtp(this.telephone).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success) {
           this.userId = response.userId;
           this.currentStep = 2;
           this.startOtpTimers();
           this.showError = false;
+
+          // Focus sur le premier input OTP
+          setTimeout(() => {
+            this.focusOtpInput(0);
+          }, 100);
         } else {
           this.errorMessage = response.message;
-          
+
           if (response.blockedUntil) {
             this.blockedUntil = new Date(response.blockedUntil);
             this.isBlocked = true;
@@ -545,85 +591,94 @@ export class ForgotPasswordComponent implements OnInit {
       }
     });
   }
-  
-  // Step 2: OTP verification
+
+  // Step 2: OTP verification (using the same logic as the original component)
   onOtpKeyDown(event: KeyboardEvent, index: number): void {
     const key = event.key;
-    
+    const currentControl = this.otpForm.get(`digit${index + 1}`)!;
+
     if (
-      !/^[0-9]$/.test(key) &&
-      !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete'].includes(key)
+        !/^[0-9]$/.test(key) &&
+        !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete'].includes(key)
     ) {
       event.preventDefault();
     }
-    
+
     if (key === 'Backspace') {
-      if (!this.otpDigits[index] && index > 0) {
-        // Focus previous input if current is empty
-        const inputs = document.querySelectorAll('.otp-input');
-        (inputs[index - 1] as HTMLInputElement).focus();
+      if (!currentControl.value && index > 0) {
+        this.otpInputs.toArray()[index - 1].nativeElement.focus();
       }
     } else if (key === 'ArrowLeft' && index > 0) {
-      const inputs = document.querySelectorAll('.otp-input');
-      (inputs[index - 1] as HTMLInputElement).focus();
+      this.otpInputs.toArray()[index - 1].nativeElement.focus();
     } else if (key === 'ArrowRight' && index < 5) {
-      const inputs = document.querySelectorAll('.otp-input');
-      (inputs[index + 1] as HTMLInputElement).focus();
+      this.otpInputs.toArray()[index + 1].nativeElement.focus();
     }
-    
+
     this.clearMessages();
   }
-  
+
   onOtpInput(index: number): void {
-    const digit = this.otpDigits[index].replace(/\D/g, '').charAt(0) || '';
-    this.otpDigits[index] = digit;
-    
+    const control = this.otpForm.get(`digit${index + 1}`)!;
+    const value = control.value;
+
+    const digit = value.toString().replace(/\D/g, '').charAt(0) || '';
+    control.setValue(digit);
+
     if (digit && index < 5) {
-      // Focus next input
-      const inputs = document.querySelectorAll('.otp-input');
-      (inputs[index + 1] as HTMLInputElement).focus();
+      this.otpInputs.toArray()[index + 1].nativeElement.focus();
     }
-    
+
     this.clearMessages();
   }
-  
+
   onOtpPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const pastedText = event.clipboardData?.getData('text')?.replace(/\D/g, '') || '';
-    
+
     for (let i = 0; i < Math.min(6, pastedText.length); i++) {
-      this.otpDigits[i] = pastedText[i];
+      const control = this.otpForm.get(`digit${i + 1}`);
+      if (control) {
+        control.setValue(pastedText[i]);
+      }
     }
-    
+
     const focusIndex = Math.min(pastedText.length, 6) - 1;
-    if (focusIndex >= 0) {
-      const inputs = document.querySelectorAll('.otp-input');
-      (inputs[focusIndex] as HTMLInputElement).focus();
-    }
-    
+    this.otpInputs.toArray()[focusIndex]?.nativeElement.focus();
+
     this.clearMessages();
   }
-  
+
+  private focusOtpInput(index: number): void {
+    const inputArray = this.otpInputs?.toArray();
+    if (inputArray && inputArray[index]) {
+      inputArray[index].nativeElement.focus();
+    }
+  }
+
   isOtpComplete(): boolean {
-    return this.otpDigits.every(digit => digit !== '');
+    return this.otpForm.valid;
   }
-  
-  getOtpValue(): string {
-    return this.otpDigits.join('');
+
+  private getOtpValue(): string {
+    return Array.from({ length: 6 })
+        .map((_, i) => this.otpForm.get(`digit${i + 1}`)?.value || '')
+        .join('');
   }
-  
+
   verifyOtp(): void {
     if (!this.isOtpComplete() || !this.userId) {
+      this.showError = true;
+      this.errorMessage = 'Veuillez saisir le code complet';
       return;
     }
-    
+
     this.isLoading = true;
     this.clearMessages();
-    
+
     this.authService.verifyPasswordResetOtp(this.userId, this.getOtpValue()).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success) {
           this.successMessage = 'Code vérifié avec succès';
           setTimeout(() => {
@@ -633,44 +688,71 @@ export class ForgotPasswordComponent implements OnInit {
         } else {
           this.errorMessage = response.message;
           this.remainingAttempts = response.remainingAttempts || null;
-          
+
           if (response.blockedUntil) {
             this.blockedUntil = new Date(response.blockedUntil);
             this.isBlocked = true;
           }
-          
+
           this.resetOtpInputs();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Une erreur est survenue. Veuillez réessayer.';
+
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+          this.remainingAttempts = error.error.remainingAttempts || null;
+
+          if (error.error.blockedUntil) {
+            this.blockedUntil = new Date(error.error.blockedUntil);
+            this.isBlocked = true;
+          }
+        } else {
+          this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        }
+
         this.resetOtpInputs();
       }
     });
   }
-  
+
+  private resetOtpInputs(): void {
+    // Réinitialiser les valeurs du formulaire
+    for (let i = 0; i < 6; i++) {
+      const control = this.otpForm.get(`digit${i + 1}`);
+      if (control) {
+        control.setValue('');
+      }
+    }
+
+    // Focus sur le premier input
+    setTimeout(() => {
+      this.focusOtpInput(0);
+    }, 100);
+  }
+
   resendOtp(): void {
     if (this.canResendIn > 0 || !this.userId) {
       return;
     }
-    
+
     this.isLoading = true;
     this.clearMessages();
-    
+
     this.authService.resendPasswordResetOtp(this.userId).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success) {
           this.successMessage = response.message;
           this.canResendIn = 30;
           this.startResendTimer();
-          
+
           // Reset OTP timer
           this.timeRemaining = 300;
           this.startOtpExpirationTimer();
-          
+
           // Reset inputs
           this.resetOtpInputs();
         } else {
@@ -679,36 +761,41 @@ export class ForgotPasswordComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Une erreur est survenue. Veuillez réessayer.';
+
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Erreur lors du renvoi du code.';
+        }
       }
     });
   }
-  
+
   // Step 3: Reset password
   resetPassword(): void {
     this.showError = true;
     this.errorMessage = '';
     this.successMessage = '';
-    
+
     if (!this.newPassword || !this.confirmPassword || !this.userId) {
       return;
     }
-    
+
     if (!this.isPasswordValid()) {
       return;
     }
-    
+
     if (this.newPassword !== this.confirmPassword) {
       this.errorMessage = 'Les mots de passe ne correspondent pas';
       return;
     }
-    
+
     this.isLoading = true;
-    
+
     this.authService.resetPassword(this.userId, this.newPassword).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success) {
           this.successMessage = 'Votre mot de passe a été réinitialisé avec succès';
           setTimeout(() => {
@@ -724,27 +811,27 @@ export class ForgotPasswordComponent implements OnInit {
       }
     });
   }
-  
+
   // Password validation
   isPasswordValid(): boolean {
-    return this.newPassword.length >= 8 && 
-           this.hasUpperCase() && 
-           this.hasNumber() && 
-           this.hasSpecialChar();
+    return this.newPassword.length >= 8 &&
+        this.hasUpperCase() &&
+        this.hasNumber() &&
+        this.hasSpecialChar();
   }
-  
+
   hasUpperCase(): boolean {
     return /[A-Z]/.test(this.newPassword);
   }
-  
+
   hasNumber(): boolean {
     return /[0-9]/.test(this.newPassword);
   }
-  
+
   hasSpecialChar(): boolean {
     return /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(this.newPassword);
   }
-  
+
   // Navigation
   goBack(): void {
     if (this.currentStep === 2) {
@@ -755,46 +842,20 @@ export class ForgotPasswordComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
-  
+
   // Utility methods
-  private resetOtpInputs(): void {
-    this.otpDigits = ['', '', '', '', '', ''];
-    
-    // Focus first input
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('.otp-input');
-      if (inputs.length > 0) {
-        (inputs[0] as HTMLInputElement).focus();
-      }
-    }, 100);
-  }
-  
   private clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
   }
-  
-  private startTimers(): void {
-    // Check for blocked status
-    const blockTimer = setInterval(() => {
-      if (this.blockedUntil && this.blockedUntil <= new Date()) {
-        this.blockedUntil = null;
-        this.isBlocked = false;
-        this.errorMessage = '';
-      }
-    }, 1000);
-    
-    this.timers.push(blockTimer);
-  }
-  
   private startOtpTimers(): void {
     this.startOtpExpirationTimer();
-    
+
     // Set initial resend timer
     this.canResendIn = 30;
     this.startResendTimer();
   }
-  
+
   private startOtpExpirationTimer(): void {
     // Clear previous timer if exists
     this.timers.forEach((timer, index) => {
@@ -803,22 +864,22 @@ export class ForgotPasswordComponent implements OnInit {
         this.timers.splice(index, 1);
       }
     });
-    
+
     // Reset timer
     this.timeRemaining = 300;
-    
+
     const timer = setInterval(() => {
       this.timeRemaining--;
-      
+
       if (this.timeRemaining <= 0) {
         clearInterval(timer);
         this.errorMessage = 'Le code OTP a expiré. Veuillez en demander un nouveau.';
       }
     }, 1000);
-    
+
     this.timers.push({ id: timer, type: 'expiration' });
   }
-  
+
   private startResendTimer(): void {
     // Clear previous timer if exists
     this.timers.forEach((timer, index) => {
@@ -827,33 +888,33 @@ export class ForgotPasswordComponent implements OnInit {
         this.timers.splice(index, 1);
       }
     });
-    
+
     const timer = setInterval(() => {
       this.canResendIn--;
-      
+
       if (this.canResendIn <= 0) {
         clearInterval(timer);
       }
     }, 1000);
-    
+
     this.timers.push({ id: timer, type: 'resend' });
   }
-  
+
   formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
-  
+
   getBlockedTimeRemaining(): string {
     if (!this.blockedUntil) return '';
-    
+
     const remaining = Math.ceil((this.blockedUntil.getTime() - Date.now()) / 1000);
     if (remaining <= 0) return '';
-    
+
     const minutes = Math.floor(remaining / 60);
     const seconds = remaining % 60;
-    
+
     if (minutes > 0) {
       return `${minutes}m ${seconds}s`;
     }

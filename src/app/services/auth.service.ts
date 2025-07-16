@@ -24,45 +24,45 @@ export class AuthService {
   // Forgot password - Request OTP
   requestPasswordResetOtp(telephone: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/forgot-password/request`, { telephone })
-      .pipe(
-        catchError(error => {
-          console.error('Erreur lors de la demande de réinitialisation:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            catchError(error => {
+              console.error('Erreur lors de la demande de réinitialisation:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   // Forgot password - Verify OTP
   verifyPasswordResetOtp(userId: number, code: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/forgot-password/verify-otp`, { userId, code })
-      .pipe(
-        catchError(error => {
-          console.error('Erreur lors de la vérification OTP:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            catchError(error => {
+              console.error('Erreur lors de la vérification OTP:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   // Forgot password - Resend OTP
   resendPasswordResetOtp(userId: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/forgot-password/resend-otp`, { userId })
-      .pipe(
-        catchError(error => {
-          console.error('Erreur lors du renvoi OTP:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            catchError(error => {
+              console.error('Erreur lors du renvoi OTP:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   // Forgot password - Reset password
   resetPassword(userId: number, newPassword: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/forgot-password/reset`, { userId, newPassword })
-      .pipe(
-        catchError(error => {
-          console.error('Erreur lors de la réinitialisation du mot de passe:', error);
-          return throwError(() => error);
-        })
-      );
+        .pipe(
+            catchError(error => {
+              console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+              return throwError(() => error);
+            })
+        );
   }
 
   private loadStoredAuth(): void {

@@ -37,7 +37,7 @@ import { OffreDrogues } from '../../../../models/offre-drogues.model';
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label required">Date de saisie</label>
+              <label class="form-label required">Date de saisie de l'offre</label>
               <input
                   type="date"
                   class="form-input"

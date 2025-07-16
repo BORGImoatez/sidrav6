@@ -18,13 +18,13 @@
             "outputPath": "dist/sidra",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": ["zone.js","src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "assets": [              "src/assets"
             ],
             "styles": ["src/global_styles.css"],
             "scripts": []
-          },
+           },
           "configurations": {
             "production": {
               "optimization": true,

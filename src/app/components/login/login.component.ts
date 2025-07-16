@@ -16,24 +16,24 @@ import { LoginRequest } from '../../models/user.model';
           <div class="logo-placeholder">
             <img  src="../../../assets/logo/logoMS.png" alt="">
           </div>
-          
+
           <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">
             SIDRA
           </h1>
-          
+
           <p class="text-center text-gray-600 mb-8">
             SYSTEME D'INFORMATION SUR LES DROGUES ET ADDICTIONS
           </p>
-          
-       
+
+
 
           <!-- Logos des partenaires -->
           <div class="partners-logos">
             <div class="logo-placeholder">
               <img  src="../../../assets/logo/logos.png" alt="">
             </div>
-           
-            
+
+
           </div>
         </div>
 
@@ -104,9 +104,6 @@ import { LoginRequest } from '../../models/user.model';
         <div class="login-footer">
           <p class="text-xs text-gray-500 text-center">
             Pour toute assistance technique, contactez votre administrateur
-          </p>
-          <p class="text-xs text-gray-400 text-center mt-2">
-            Demo: admin&#64;sidra.tn / Insp2025 | externe&#64;sidra.tn / 123456
           </p>
           <div class="text-center mt-4">
             <a routerLink="/forgot-password" class="text-primary-600 hover:underline">
@@ -224,8 +221,8 @@ export class LoginComponent implements OnInit {
   isBlocked = false;
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+      private authService: AuthService,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -261,16 +258,16 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success && response.requiresOtp && response.userId) {
           // Rediriger vers la page OTP
-          this.router.navigate(['/otp'], { 
+          this.router.navigate(['/otp'], {
             queryParams: { userId: response.userId }
           });
         } else if (!response.success) {
           this.errorMessage = response.message;
           this.remainingAttempts = response.remainingAttempts || null;
-          
+
           if (response.blockedUntil) {
             this.blockedUntil = response.blockedUntil;
             this.isBlocked = true;
@@ -279,12 +276,12 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         // Gérer les erreurs de réponse du serveur
         if (error.error && error.error.message) {
           this.errorMessage = error.error.message;
           this.remainingAttempts = error.error.remainingAttempts || null;
-          
+
           if (error.error.blockedUntil) {
             this.blockedUntil = new Date(error.error.blockedUntil);
             this.isBlocked = true;
@@ -292,7 +289,7 @@ export class LoginComponent implements OnInit {
         } else {
           this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
         }
-        
+
         console.error('Erreur de connexion:', error);
       }
     });
