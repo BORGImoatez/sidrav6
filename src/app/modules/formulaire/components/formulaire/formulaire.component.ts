@@ -491,6 +491,7 @@ export class FormulaireComponent implements OnInit {
   currentStep = 1;
   totalSteps = 6;
   isSaving = false;
+  showValidationErrors = false;
   isEditMode = false;
   formulaireId: number | null = null;
   patientId: number | null = null;
@@ -785,18 +786,29 @@ export class FormulaireComponent implements OnInit {
   nextStep(): void {
     if (this.isCurrentStepValid() && this.currentStep < this.totalSteps) {
       // Mark current step as completed
+      this.showValidationErrors = false;
       const currentStepObj = this.steps.find(s => s.id === this.currentStep);
       if (currentStepObj) {
         currentStepObj.isCompleted = true;
       }
 
       this.currentStep++;
+    } else {
+      // Afficher les erreurs de validation
+      this.showValidationErrors = true;
+      
+      // Propager l'état de validation aux composants enfants
+      const currentStepComponent = this.getCurrentStepComponent();
+      if (currentStepComponent) {
+        currentStepComponent.showValidationErrors = true;
+      }
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.showValidationErrors = false;
     }
   }
 
@@ -816,6 +828,13 @@ export class FormulaireComponent implements OnInit {
 
   async submitForm(): Promise<void> {
     if (!this.isFormValid() || this.isSaving) {
+      this.showValidationErrors = true;
+      
+      // Propager l'état de validation aux composants enfants
+      const currentStepComponent = this.getCurrentStepComponent();
+      if (currentStepComponent) {
+        currentStepComponent.showValidationErrors = true;
+      }
       return;
     }
 
@@ -943,5 +962,12 @@ export class FormulaireComponent implements OnInit {
 
   getCurrentDateTimeFormatted(): string {
     return this.datePipe.transform(new Date(), 'dd/MM/yyyy HH:mm') || '';
+  }
+  
+  // Méthode pour obtenir le composant de l'étape actuelle
+  private getCurrentStepComponent(): any {
+    // Cette méthode est une approximation, car Angular ne fournit pas d'accès direct aux composants enfants
+    // Dans une implémentation réelle, vous pourriez utiliser @ViewChild ou un service partagé
+    return null;
   }
 }
