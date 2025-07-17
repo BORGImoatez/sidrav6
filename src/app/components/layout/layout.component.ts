@@ -69,6 +69,17 @@ import { User, UserRole } from '../../models/user.model';
             </a>
 
             <a
+                routerLink="/patient-access"
+                routerLinkActive="active"
+                class="nav-item"
+                *ngIf="!isExterne()"
+                [title]="isSidebarCollapsed ? 'Accès patients' : ''"
+            >
+              <span class="nav-icon">🔑</span>
+              <span class="nav-label" *ngIf="!isSidebarCollapsed">Accès patients</span>
+            </a>
+
+            <a
                 routerLink="/offre-drogues"
                 routerLinkActive="active"
                 class="nav-item"

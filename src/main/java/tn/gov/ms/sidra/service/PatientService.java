@@ -55,6 +55,69 @@ public class PatientService {
     }
 
     /**
+     * Recherche des patients dans d'autres structures (accès limité)
+     */
+    @Transactional(readOnly = true)
+    public List<PatientDto> searchPatientsExternal(String codePatient, Long structureId, User currentUser) {
+        log.info("Recherche externe de patients - utilisateur: {}, code: {}, structureId: {}", 
+                currentUser.getEmail(), codePatient, structureId);
+
+        List<Patient> patients = new ArrayList<>();
+
+        // Recherche par code patient
+        if (codePatient != null && !codePatient.trim().isEmpty()) {
+            Optional<Patient> patientOpt = patientRepository.findByCodePatient(codePatient.trim());
+            patientOpt.ifPresent(patients::add);
+        }
+
+        // Recherche par structure
+        if (structureId != null) {
+            List<Patient> structurePatients = patientRepository.findByStructureId(structureId);
+            
+            // Si on a déjà trouvé un patient par code, filtrer pour ne garder que celui-ci s'il est dans la structure
+            if (!patients.isEmpty() && patients.get(0).getStructure().getId().equals(structureId)) {
+                // On garde le patient déjà trouvé
+            } else if (!patients.isEmpty()) {
+                // Le patient trouvé par code n'est pas dans la structure demandée
+                patients.clear();
+            } else {
+                // Ajouter tous les patients de la structure
+                patients.addAll(structurePatients);
+            }
+        }
+
+        // Filtrer pour exclure les patients de la structure de l'utilisateur
+        patients = patients.stream()
+                .filter(p -> !p.getStructure().getId().equals(currentUser.getStructure().getId()))
+                .collect(Collectors.toList());
+
+        // Convertir en DTO avec informations limitées
+        return patients.stream()
+                .map(this::mapToLimitedDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convertit un patient en DTO avec informations limitées
+     */
+    private PatientDto mapToLimitedDto(Patient patient) {
+        PatientDto dto = new PatientDto();
+        dto.setId(patient.getId());
+        dto.setCodePatient(patient.getCodePatient());
+        dto.setGenre(patient.getGenre());
+        dto.setDateNaissance(patient.getDateNaissance());
+        
+        // Informations sur la structure
+        PatientDto.StructureDto structureDto = new PatientDto.StructureDto();
+        structureDto.setId(patient.getStructure().getId());
+        structureDto.setNom(patient.getStructure().getNom());
+        structureDto.setType(patient.getStructure().getType().getLabel());
+        dto.setStructure(structureDto);
+        
+        return dto;
+    }
+
+    /**
      * Récupère un patient par son ID
      */
     @Transactional(readOnly = true)

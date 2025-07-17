@@ -42,6 +42,10 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/mes-formulaires/mes-formulaires.routes').then(m => m.routes)
       },
       {
+        path: 'patient-access',
+        loadChildren: () => import('./modules/patient-access/patient-access.routes').then(m => m.routes)
+      },
+      {
         path: 'offre-drogues',
         loadChildren: () => import('./modules/offre-drogues/offre-drogues.routes').then(m => m.routes)
       },

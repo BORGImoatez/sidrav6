@@ -9,6 +9,7 @@ import tn.gov.ms.sidra.entity.*;
 import tn.gov.ms.sidra.exception.BusinessException;
 import tn.gov.ms.sidra.mapper.FormulaireMapper;
 import tn.gov.ms.sidra.repository.FormulaireRepository;
+import tn.gov.ms.sidra.repository.PatientAccessRepository;
 import tn.gov.ms.sidra.repository.PatientRepository;
 
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class FormulaireService {
     private final PatientService patientService;
     private final FormulaireMapper formulaireMapper;
     private final PatientRepository patientRepository;
+    private final PatientAccessRepository patientAccessRepository;
 
     /**
      * Récupère tous les formulaires selon le rôle de l'utilisateur
@@ -278,10 +280,24 @@ public class FormulaireService {
         }
 
         if (currentUser.getRole() == UserRole.UTILISATEUR) {
-            if (!formulaire.getUtilisateur().getId().equals(currentUser.getId())) {
-                throw new BusinessException("Vous ne pouvez consulter que vos propres formulaires");
+            // Vérifier si l'utilisateur est le créateur du formulaire
+            if (formulaire.getUtilisateur().getId().equals(currentUser.getId())) {
+                return;
             }
-            return;
+            
+            // Vérifier si l'utilisateur appartient à la même structure que le formulaire
+            if (formulaire.getStructure().getId().equals(currentUser.getStructure().getId())) {
+                return;
+            }
+            
+            // Vérifier si l'utilisateur a une demande d'accès approuvée pour ce patient
+            boolean hasAccess = patientAccessRepository.hasAccess(formulaire.getPatient(), currentUser);
+            if (hasAccess) {
+                return;
+            }
+            
+            // Si aucune des conditions n'est remplie, refuser l'accès
+                throw new BusinessException("Vous ne pouvez consulter que vos propres formulaires");
         }
 
         throw new BusinessException("Vous n'avez pas les permissions pour consulter ce formulaire");

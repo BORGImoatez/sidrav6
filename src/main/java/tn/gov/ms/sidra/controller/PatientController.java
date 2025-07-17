@@ -45,6 +45,23 @@ public class PatientController {
     }
 
     /**
+     * Recherche des patients dans d'autres structures (accès limité)
+     */
+    @GetMapping("/external-search")
+    @PreAuthorize("hasRole('UTILISATEUR')")
+    public ResponseEntity<List<PatientDto>> searchPatientsExternal(
+            @RequestParam(required = false) String codePatient,
+            @RequestParam(required = false) Long structureId,
+            @AuthenticationPrincipal User currentUser) {
+        
+        log.info("Recherche externe de patients - utilisateur: {}, code: {}, structureId: {}", 
+                currentUser.getEmail(), codePatient, structureId);
+
+        List<PatientDto> patients = patientService.searchPatientsExternal(codePatient, structureId, currentUser);
+        return ResponseEntity.ok(patients);
+    }
+
+    /**
      * Récupère un patient par son ID
      */
     @GetMapping("/{id}")

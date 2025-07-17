@@ -52,6 +52,31 @@ export class PatientService {
     }
 
     /**
+     * Recherche des patients dans d'autres structures (accès limité)
+     */
+    searchPatientsExternal(codePatient?: string, structureId?: string): Observable<any[]> {
+        let url = `${this.apiUrl}/patients/external-search`;
+        
+        // Ajouter les paramètres de recherche
+        const params: string[] = [];
+        if (codePatient) params.push(`codePatient=${encodeURIComponent(codePatient)}`);
+        if (structureId) params.push(`structureId=${structureId}`);
+        
+        if (params.length > 0) {
+            url += `?${params.join('&')}`;
+        }
+
+        return this.http.get<any[]>(url, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors de la recherche des patients externes:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
      * Récupère un patient par son ID
      */
     getPatientById(id: number): Observable<any> {
