@@ -44,6 +44,11 @@ public class Patient {
     @Column(name = "code_patient", nullable = false, unique = true)
     private String codePatient;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "structure_mere_id")
+    @JsonIgnoreProperties({"utilisateurs"})
+    private Structure structureMere;
+
     @Column(name = "date_creation", nullable = false)
     private LocalDateTime dateCreation;
 

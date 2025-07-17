@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 public interface PatientMapper {
 
     @Mapping(source = "structure", target = "structure", qualifiedByName = "structureToDto")
+    @Mapping(source = "structureMere", target = "structureMere", qualifiedByName = "structureToDto")
     @Mapping(source = "formulaires", target = "formulaires", qualifiedByName = "formulairesToBrefDto")
     PatientDto toDto(Patient patient);
 
     @Mapping(source = "structure", target = "structure", qualifiedByName = "structureToListDto")
+    @Mapping(source = "structureMere", target = "structureMere", qualifiedByName = "structureToListDto")
     @Mapping(source = "formulaires", target = "nombreFormulaires", qualifiedByName = "countFormulaires")
     @Mapping(source = "formulaires", target = "dernierFormulaire", qualifiedByName = "getLastFormulaireDate")
     PatientListDto toListDto(Patient patient);

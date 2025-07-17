@@ -158,29 +158,22 @@ public class PatientService {
      * Crée ou récupère un patient existant
      */
     @Transactional
-    public Patient createOrGetPatient(String nom, String prenom, LocalDate dateNaissance, String genre, User currentUser) {
+    public Patient createOrGetPatient(String nom, String prenom, LocalDate dateNaissance, String genre, User currentUser, Long patientOriginalId) {
         log.info("Création ou récupération d'un patient: {} {} (né le {}) par l'utilisateur: {}",
                 prenom, nom, dateNaissance, currentUser.getEmail());
 
-        // Vérifier si le patient existe déjà
-//        if (patientRepository.existsByNomAndPrenomAndDateNaissance(nom, prenom, dateNaissance)) {
-//            log.info("Patient existant trouvé: {} {} (né le {})", prenom, nom, dateNaissance);
-//            // Récupérer tous les patients avec ce nom, prénom et date de naissance
-//            List<Patient> patients = patientRepository.findAll().stream()
-//                    .filter(p -> p.getNom().equals(nom) && p.getPrenom().equals(prenom) && p.getDateNaissance().equals(dateNaissance))
-//                    .collect(Collectors.toList());
-//
-//            // Si l'utilisateur n'est pas SUPER_ADMIN, filtrer par structure
-//            if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
-//                patients = patients.stream()
-//                        .filter(p -> p.getStructure().getId().equals(currentUser.getStructure().getId()))
-//                        .toList();
-//            }
-//
-//            if (!patients.isEmpty()) {
-//                return patients.get(0);
-//            }
-//        }
+        // Vérifier si le patient existe déjà dans la structure actuelle
+        List<Patient> existingPatients = patientRepository.findAll().stream()
+                .filter(p -> p.getNom() != null && p.getNom().equals(nom) && 
+                           p.getPrenom().equals(prenom) && 
+                           p.getDateNaissance().equals(dateNaissance) &&
+                           p.getStructure().getId().equals(currentUser.getStructure().getId()))
+                .collect(Collectors.toList());
+
+        if (!existingPatients.isEmpty()) {
+            log.info("Patient existant trouvé dans la structure actuelle: {} {} (né le {})", prenom, nom, dateNaissance);
+            return existingPatients.get(0);
+        }
 
         // Créer un nouveau patient
         Patient patient = new Patient();
@@ -199,6 +192,18 @@ public class PatientService {
             throw new BusinessException("L'utilisateur n'est pas associé à une structure");
         }
         patient.setStructure(structure);
+
+        // Si un patient original est fourni, définir la structure mère
+        if (patientOriginalId != null) {
+            Patient originalPatient = patientRepository.findById(patientOriginalId).orElse(null);
+            if (originalPatient != null) {
+                // La structure mère est soit la structure mère du patient original, soit sa structure actuelle
+                patient.setStructureMere(originalPatient.getStructureMere() != null ? 
+                    originalPatient.getStructureMere() : originalPatient.getStructure());
+                log.info("Patient créé avec référence à la structure mère: {}", 
+                    patient.getStructureMere().getNom());
+            }
+        }
 
         Patient savedPatient = patientRepository.save(patient);
         log.info("Nouveau patient créé avec l'ID: {} et le code: {}", savedPatient.getId(), savedPatient.getCodePatient());

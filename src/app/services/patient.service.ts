@@ -77,6 +77,25 @@ export class PatientService {
     }
 
     /**
+     * Crée un nouveau patient dans la structure actuelle en référençant un patient d'une autre structure
+     */
+    createPatientFromExternal(originalPatientId: number, additionalData?: any): Observable<any> {
+        const requestData = {
+            originalPatientId: originalPatientId,
+            ...additionalData
+        };
+
+        return this.http.post<any>(`${this.apiUrl}/patients/create-from-external`, requestData, {
+            headers: this.authService.getAuthHeaders()
+        }).pipe(
+            catchError(error => {
+                console.error('Erreur lors de la création du patient depuis externe:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
      * Récupère un patient par son ID
      */
     getPatientById(id: number): Observable<any> {

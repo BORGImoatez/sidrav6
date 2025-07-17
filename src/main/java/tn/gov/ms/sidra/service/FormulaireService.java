@@ -163,7 +163,8 @@ public class FormulaireService {
                     request.getPrenom(),
                     request.getDateNaissance(),
                     request.getGenre(),
-                    currentUser
+                    currentUser,
+                    null
             );
         }
 

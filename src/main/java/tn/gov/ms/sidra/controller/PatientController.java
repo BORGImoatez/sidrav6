@@ -11,6 +11,7 @@ import tn.gov.ms.sidra.service.PatientDto;
 import tn.gov.ms.sidra.service.PatientService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/patients")
@@ -59,6 +60,23 @@ public class PatientController {
 
         List<PatientDto> patients = patientService.searchPatientsExternal(codePatient, structureId, currentUser);
         return ResponseEntity.ok(patients);
+    }
+
+    /**
+     * Crée un nouveau patient dans la structure actuelle en référençant un patient d'une autre structure
+     */
+    @PostMapping("/create-from-external")
+    @PreAuthorize("hasRole('UTILISATEUR')")
+    public ResponseEntity<PatientDto> createPatientFromExternal(
+            @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal User currentUser) {
+        
+        Long originalPatientId = Long.valueOf(request.get("originalPatientId").toString());
+        log.info("Création d'un patient depuis externe - utilisateur: {}, patient original: {}", 
+                currentUser.getEmail(), originalPatientId);
+        
+        PatientDto patient = patientService.createPatientFromExternal(originalPatientId, currentUser);
+        return ResponseEntity.ok(patient);
     }
 
     /**
