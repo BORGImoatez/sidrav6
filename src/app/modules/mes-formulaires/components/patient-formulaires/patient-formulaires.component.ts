@@ -558,7 +558,8 @@ canEditFormulaire(formulaire: any): boolean {
 
   // Utilisateur ne peut modifier que ses propres formulaires
   if (this.authService.hasRole(UserRole.UTILISATEUR)) {
-    return formulaire.utilisateur.id === currentUser.id;
+    // Vérifier si l'utilisateur est le créateur du formulaire
+    return formulaire.utilisateur && formulaire.utilisateur.id === currentUser.id;
   }
 
   return false;
