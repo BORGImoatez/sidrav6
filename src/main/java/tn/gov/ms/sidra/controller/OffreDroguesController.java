@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import tn.gov.ms.sidra.dto.offredrogues.MonthlySubstancesDto;
 import tn.gov.ms.sidra.dto.offredrogues.CreateOffreDroguesRequest;
 import tn.gov.ms.sidra.dto.offredrogues.OffreDroguesDto;
 import tn.gov.ms.sidra.dto.offredrogues.OffreDroguesListDto;
@@ -17,6 +18,7 @@ import tn.gov.ms.sidra.entity.User;
 import tn.gov.ms.sidra.service.OffreDroguesService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -138,3 +140,19 @@ public class OffreDroguesController {
         return ResponseEntity.ok(count);
     }
 }
+    /**
+     * Récupère les données mensuelles des substances pour un mois et une année spécifiques
+     */
+    @GetMapping("/monthly-substances")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
+    public ResponseEntity<List<MonthlySubstancesDto>> getMonthlySubstancesData(
+            @RequestParam int year,
+            @RequestParam int month,
+            @AuthenticationPrincipal User currentUser) {
+        
+        log.info("Récupération des données mensuelles des substances pour {}/{} par l'utilisateur: {}", 
+                month + 1, year, currentUser.getEmail());
+        
+        List<MonthlySubstancesDto> data = offreDroguesService.getMonthlySubstancesData(year, month, currentUser);
+        return ResponseEntity.ok(data);
+    }

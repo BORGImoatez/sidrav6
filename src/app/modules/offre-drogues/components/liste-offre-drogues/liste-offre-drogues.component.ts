@@ -118,7 +118,15 @@ Chart.register(...registerables);
       <div class="charts-section">
         <div class="card mb-4">
           <div class="card-header">
-            <h3 class="card-title">Évolution des saisies par mois</h3>
+            <h3 class="card-title">Évolution des saisies par mois de l'année {{ selectedYear }}</h3>
+            <div class="filter-controls">
+              <div class="year-filter">
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChartByYear()">
+                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div class="card-body">
             <div class="chart-container">
@@ -129,7 +137,7 @@ Chart.register(...registerables);
         
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Quantités saisies par substance</h3>
+            <h3 class="card-title">Quantités saisies par substance pour l'année {{ selectedYear }}</h3>
             <div class="filter-controls">
               <div class="year-filter">
                 <label class="form-label">Année</label>
@@ -142,6 +150,31 @@ Chart.register(...registerables);
           <div class="card-body">
             <div class="chart-container">
               <canvas id="substancesChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Évolution mensuelle des substances pour {{ availableMonths[selectedMonth].label }} {{ selectedYear }}</h3>
+            <div class="filter-controls">
+              <div class="year-filter">
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterMonthlySubstancesChart()">
+                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+              <div class="month-filter">
+                <label class="form-label">Mois</label>
+                <select class="form-select" [(ngModel)]="selectedMonth" (change)="filterMonthlySubstancesChart()">
+                  <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlySubstancesChart"></canvas>
             </div>
           </div>
         </div>
@@ -297,17 +330,27 @@ Chart.register(...registerables);
     .filter-controls {
       display: flex;
       gap: var(--spacing-4);
-      align-items: center;
+      align-items: flex-end;
       margin-top: var(--spacing-2);
     }
 
     .year-filter {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: var(--spacing-2);
+    }
+
+    .month-filter {
+      display: flex;
+      flex-direction: column;
       gap: var(--spacing-2);
     }
 
     .year-filter .form-select {
+      width: 120px;
+    }
+
+    .month-filter .form-select {
       width: 120px;
     }
 
@@ -599,12 +642,28 @@ export class ListeOffreDroguesComponent implements OnInit {
   startDate = '';
   endDate = '';
   selectedPeriod = '';
+  selectedMonth = new Date().getMonth();
   
   // Propriétés pour les graphiques
   monthlyChart: Chart | null = null;
   substancesChart: Chart | null = null;
+  monthlySubstancesChart: Chart | null = null;
   selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [];
+  availableMonths: { value: number, label: string }[] = [
+    { value: 0, label: 'Janvier' },
+    { value: 1, label: 'Février' },
+    { value: 2, label: 'Mars' },
+    { value: 3, label: 'Avril' },
+    { value: 4, label: 'Mai' },
+    { value: 5, label: 'Juin' },
+    { value: 6, label: 'Juillet' },
+    { value: 7, label: 'Août' },
+    { value: 8, label: 'Septembre' },
+    { value: 9, label: 'Octobre' },
+    { value: 10, label: 'Novembre' },
+    { value: 11, label: 'Décembre' }
+  ];
   chartData: any[] = [];
 
   // États
@@ -654,6 +713,7 @@ export class ListeOffreDroguesComponent implements OnInit {
   private initializeCharts(): void {
     this.createMonthlyChart();
     this.createSubstancesChart();
+    this.createMonthlySubstancesChart();
   }
 
   private createMonthlyChart(): void {
@@ -664,8 +724,8 @@ export class ListeOffreDroguesComponent implements OnInit {
     const ctx = document.getElementById('monthlyChart') as HTMLCanvasElement;
     if (!ctx) return;
 
-    // Préparer les données par mois
-    const monthlyData = this.prepareMonthlyData();
+    // Préparer les données par mois pour l'année sélectionnée
+    const monthlyData = this.prepareMonthlyData(this.selectedYear);
 
     this.monthlyChart = new Chart(ctx, {
       type: 'line',
@@ -702,6 +762,90 @@ export class ListeOffreDroguesComponent implements OnInit {
           }
         }
       }
+    });
+  }
+
+  private createMonthlySubstancesChart(): void {
+    if (this.monthlySubstancesChart) {
+      this.monthlySubstancesChart.destroy();
+    }
+
+    const ctx = document.getElementById('monthlySubstancesChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    // Récupérer les données mensuelles des substances
+    this.offreDroguesService.getMonthlySubstancesData(this.selectedYear, this.selectedMonth).subscribe(data => {
+      const labels = data.map(item => item.day);
+      
+      // Créer un dataset pour chaque substance
+      const datasets = [
+        {
+          label: 'Cannabis (kg)',
+          data: data.map(item => item.cannabis || 0),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'Comprimés Tableau A',
+          data: data.map(item => item.comprimesTableauA || 0),
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'Ecstasy (comprimé)',
+          data: data.map(item => item.ecstasyComprime || 0),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'Cocaïne (g)',
+          data: data.map(item => item.cocaine || 0),
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
+          borderColor: 'rgba(255, 206, 86, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'Héroïne (g)',
+          data: data.map(item => item.heroine || 0),
+          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        }
+      ];
+
+      this.monthlySubstancesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            },
+            legend: {
+              position: 'top',
+            }
+          }
+        }
+      });
     });
   }
 
@@ -765,17 +909,16 @@ export class ListeOffreDroguesComponent implements OnInit {
     });
   }
 
-  private prepareMonthlyData(): { labels: string[], data: number[] } {
+  private prepareMonthlyData(year: number): { labels: string[], data: number[] } {
     // Créer un tableau pour chaque mois de l'année en cours
     const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    const currentYear = new Date().getFullYear();
     const monthlyCounts = new Array(12).fill(0);
 
-    // Compter les saisies par mois pour l'année en cours
+    // Compter les saisies par mois pour l'année sélectionnée
     this.data.forEach(item => {
       const date = new Date(item.dateSaisie);
-      if (date.getFullYear() === currentYear) {
+      if (date.getFullYear() === year) {
         monthlyCounts[date.getMonth()]++;
       }
     });
@@ -829,6 +972,12 @@ export class ListeOffreDroguesComponent implements OnInit {
 
   filterChartByYear(): void {
     this.createSubstancesChart();
+    this.createMonthlyChart();
+    this.filterMonthlySubstancesChart();
+  }
+
+  filterMonthlySubstancesChart(): void {
+    this.createMonthlySubstancesChart();
   }
 
   filterByCustomPeriod(): void {

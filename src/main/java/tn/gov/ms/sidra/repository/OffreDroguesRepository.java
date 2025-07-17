@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import tn.gov.ms.sidra.dto.offredrogues.MonthlySubstancesDto;
 import tn.gov.ms.sidra.entity.OffreDrogues;
 import tn.gov.ms.sidra.entity.User;
 
@@ -23,6 +24,12 @@ public interface OffreDroguesRepository extends JpaRepository<OffreDrogues, Long
 
     @Query("SELECT o FROM OffreDrogues o WHERE o.dateSaisie < :date AND o.id != :currentId ORDER BY o.dateSaisie DESC")
     List<OffreDrogues> findLastEntryBefore(@Param("date") LocalDate date, @Param("currentId") Long currentId);
+
+    /**
+     * Trouve toutes les saisies pour un mois et une année spécifiques
+     */
+    @Query("SELECT o FROM OffreDrogues o WHERE YEAR(o.dateSaisie) = :year AND MONTH(o.dateSaisie) = :month ORDER BY o.dateSaisie")
+    List<OffreDrogues> findByYearAndMonth(@Param("year") int year, @Param("month") int month);
 
     @Query("SELECT o FROM OffreDrogues o LEFT JOIN FETCH o.structure s LEFT JOIN FETCH s.gouvernorat LEFT JOIN FETCH o.utilisateur ORDER BY o.dateSaisie DESC")
     List<OffreDrogues> findAllByOrderByDateSaisieDesc();

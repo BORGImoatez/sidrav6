@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.gov.ms.sidra.dto.offredrogues.CreateOffreDroguesRequest;
+import tn.gov.ms.sidra.dto.offredrogues.MonthlySubstancesDto;
 import tn.gov.ms.sidra.dto.offredrogues.OffreDroguesDto;
 import tn.gov.ms.sidra.dto.offredrogues.OffreDroguesListDto;
 import tn.gov.ms.sidra.dto.offredrogues.UpdateOffreDroguesRequest;
@@ -16,8 +17,12 @@ import tn.gov.ms.sidra.mapper.OffreDroguesMapper;
 import tn.gov.ms.sidra.repository.OffreDroguesRepository;
 import tn.gov.ms.sidra.repository.StructureRepository;
 
+import java.time.YearMonth;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -229,6 +234,87 @@ public class OffreDroguesService {
      */
     public long getCountByStructure(Long structureId) {
         return offreDroguesRepository.countByStructureId(structureId);
+    }
+    
+    /**
+     * Récupère les données mensuelles des substances pour un mois et une année spécifiques
+     */
+    @Transactional(readOnly = true)
+    public List<MonthlySubstancesDto> getMonthlySubstancesData(int year, int month, User currentUser) {
+        log.info("Récupération des données mensuelles des substances pour {}/{} par l'utilisateur: {}", 
+                month + 1, year, currentUser.getEmail());
+        
+        // Déterminer le premier et le dernier jour du mois
+        YearMonth yearMonth = YearMonth.of(year, month + 1);
+        LocalDate firstDay = yearMonth.atDay(1);
+        LocalDate lastDay = yearMonth.atEndOfMonth();
+        
+        // Récupérer les données pour ce mois
+        List<OffreDrogues> monthlyData;
+        
+        if (currentUser.getRole() == UserRole.EXTERNE) {
+            monthlyData = offreDroguesRepository.findByUtilisateurAndDateSaisieBetween(
+                    currentUser, firstDay, lastDay);
+        } else {
+            monthlyData = offreDroguesRepository.findByDateSaisieBetween(firstDay, lastDay);
+            
+            // Filtrer par structure pour les admin structure
+            if (currentUser.getRole() == UserRole.ADMIN_STRUCTURE) {
+                monthlyData = monthlyData.stream()
+                        .filter(o -> o.getStructure() != null &&
+                                o.getStructure().getId().equals(currentUser.getStructure().getId()))
+                        .collect(Collectors.toList());
+            }
+        }
+        
+        // Organiser les données par jour
+        Map<Integer, MonthlySubstancesDto> dailyData = new HashMap<>();
+        
+        // Initialiser tous les jours du mois
+        for (int day = 1; day <= lastDay.getDayOfMonth(); day++) {
+            MonthlySubstancesDto dto = new MonthlySubstancesDto();
+            dto.setDay(day);
+            dailyData.put(day, dto);
+        }
+        
+        // Remplir avec les données réelles
+        for (OffreDrogues offreDrogues : monthlyData) {
+            int day = offreDrogues.getDateSaisie().getDayOfMonth();
+            MonthlySubstancesDto dto = dailyData.get(day);
+            
+            if (dto != null) {
+                // Additionner les valeurs si plusieurs saisies le même jour
+                dto.setCannabis(addValues(dto.getCannabis(), offreDrogues.getCannabis()));
+                dto.setComprimesTableauA(addValues(dto.getComprimesTableauA(), offreDrogues.getComprimesTableauA()));
+                dto.setEcstasyComprime(addValues(dto.getEcstasyComprime(), offreDrogues.getEcstasyComprime()));
+                dto.setEcstasyPoudre(addValues(dto.getEcstasyPoudre(), offreDrogues.getEcstasyPoudre()));
+                dto.setSubutex(addValues(dto.getSubutex(), offreDrogues.getSubutex()));
+                dto.setCocaine(addValues(dto.getCocaine(), offreDrogues.getCocaine()));
+                dto.setHeroine(addValues(dto.getHeroine(), offreDrogues.getHeroine()));
+            }
+        }
+        
+        // Convertir la map en liste triée par jour
+        return dailyData.values().stream()
+                .sorted((a, b) -> Integer.compare(a.getDay(), b.getDay()))
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Additionne deux valeurs numériques, en gérant les nulls
+     */
+    private <T extends Number> T addValues(T a, T b) {
+        if (a == null && b == null) return null;
+        if (a == null) return b;
+        if (b == null) return a;
+        
+        if (a instanceof Double) {
+            return (T) Double.valueOf(((Double) a) + ((Double) b));
+        } else if (a instanceof Integer) {
+            return (T) Integer.valueOf(((Integer) a) + ((Integer) b));
+        }
+        
+        return a;
     }
 
     /**

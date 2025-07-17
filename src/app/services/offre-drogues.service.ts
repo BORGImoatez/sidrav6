@@ -78,6 +78,18 @@ export class OffreDroguesService {
       private authService: AuthService // Assuming this service exists
   ) {}
 
+  // Get monthly substances data
+  getMonthlySubstancesData(year: number, month: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/offre-drogues/monthly-substances?year=${year}&month=${month}`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
+        catchError(error => {
+          console.error('Erreur lors du chargement des données mensuelles des substances:', error);
+          return throwError(() => error);
+        })
+    );
+  }
+
   // Get all offre-drogues
   getAll(): Observable<OffreDroguesListItem[]> {
     return this.http.get<OffreDroguesListItem[]>(`${this.apiUrl}/offre-drogues`, {
