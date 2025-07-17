@@ -618,7 +618,25 @@ export class FormulaireComponent implements OnInit {
   private convertApiDataToFormData(apiData: any): Partial<FormulaireData> {
     // Convertir les chaînes JSON en objets
     const formData: Partial<FormulaireData> = { ...apiData };
-    console.log('Données API brutes:', apiData);
+    
+    // Ensure patient data is properly handled
+    if (apiData.patient) {
+      formData.patientId = apiData.patient.id;
+      
+      // Copy patient data to main form for editing
+      if (apiData.patient.nom) formData.nom = apiData.patient.nom;
+      if (apiData.patient.prenom) formData.prenom = apiData.patient.prenom;
+      if (apiData.patient.genre) formData.genre = apiData.patient.genre;
+      
+      // Handle date of birth
+      if (apiData.patient.dateNaissance) {
+        if (typeof apiData.patient.dateNaissance === 'string') {
+          formData.dateNaissance = new Date(apiData.patient.dateNaissance);
+        } else {
+          formData.dateNaissance = apiData.patient.dateNaissance;
+        }
+      }
+    }
 
     // Convertir les champs JSON
     try {
@@ -655,11 +673,7 @@ export class FormulaireComponent implements OnInit {
       // Conversion des dates
       if (apiData.dateConsultation && typeof apiData.dateConsultation === 'string') {
         formData.dateConsultation = new Date(apiData.dateConsultation);
-      }
-
-      if (apiData.dateNaissance && typeof apiData.dateNaissance === 'string') {
-        formData.dateNaissance = new Date(apiData.dateNaissance);
-      }
+      }    
 
       console.log('Données formulaire après conversion:', formData);
     } catch (error) {
