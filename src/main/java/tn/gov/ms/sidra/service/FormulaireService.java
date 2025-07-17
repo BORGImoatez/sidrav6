@@ -274,7 +274,11 @@ public class FormulaireService {
 
         if (currentUser.getRole() == UserRole.ADMIN_STRUCTURE) {
             if (!formulaire.getStructure().getId().equals(currentUser.getStructure().getId())) {
-                throw new BusinessException("Vous ne pouvez consulter que les formulaires de votre structure");
+                // Vérifier si l'utilisateur a une demande d'accès approuvée pour ce patient
+                boolean hasAccess = patientAccessRepository.hasAccess(formulaire.getPatient(), currentUser);
+                if (!hasAccess) {
+                    throw new BusinessException("Vous ne pouvez consulter que les formulaires de votre structure");
+                }
             }
             return;
         }
@@ -297,7 +301,7 @@ public class FormulaireService {
             }
             
             // Si aucune des conditions n'est remplie, refuser l'accès
-                throw new BusinessException("Vous ne pouvez consulter que vos propres formulaires");
+            throw new BusinessException("Vous n'avez pas les permissions pour consulter ce formulaire");
         }
 
         throw new BusinessException("Vous n'avez pas les permissions pour consulter ce formulaire");

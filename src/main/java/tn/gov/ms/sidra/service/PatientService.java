@@ -230,11 +230,34 @@ public class PatientService {
             return; // SUPER_ADMIN peut tout voir
         }
 
-        if (currentUser.getRole() == UserRole.ADMIN_STRUCTURE || currentUser.getRole() == UserRole.UTILISATEUR) {
-            if (!patient.getStructure().getId().equals(currentUser.getStructure().getId())) {
-                throw new BusinessException("Vous ne pouvez consulter que les patients de votre structure");
+        if (currentUser.getRole() == UserRole.ADMIN_STRUCTURE) {
+            // Vérifier si l'admin appartient à la même structure que le patient
+            if (patient.getStructure().getId().equals(currentUser.getStructure().getId())) {
+                return;
             }
-            return;
+            
+            // Vérifier si l'admin a une demande d'accès approuvée
+            boolean hasAccess = patientAccessRepository.hasAccess(patient, currentUser);
+            if (hasAccess) {
+                return;
+            }
+            
+            throw new BusinessException("Vous ne pouvez consulter que les patients de votre structure");
+        }
+        
+        if (currentUser.getRole() == UserRole.UTILISATEUR) {
+            // Vérifier si l'utilisateur appartient à la même structure que le patient
+            if (patient.getStructure().getId().equals(currentUser.getStructure().getId())) {
+                return;
+            }
+            
+            // Vérifier si l'utilisateur a une demande d'accès approuvée
+            boolean hasAccess = patientAccessRepository.hasAccess(patient, currentUser);
+            if (hasAccess) {
+                return;
+            }
+            
+            throw new BusinessException("Vous ne pouvez consulter que les patients de votre structure");
         }
 
         throw new BusinessException("Vous n'avez pas les permissions pour consulter ce patient");

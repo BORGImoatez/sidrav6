@@ -502,10 +502,9 @@ export class PatientSearchComponent implements OnInit {
   getAccessStatusLabel(patient: any): string {
     const status = this.patientAccessStatus.get(patient.id);
     
-    if (!status) return 'Accès non demandé';
+    if (!status || status === 'REJECTED') return 'Accès non demandé';
     if (status === 'APPROVED') return 'Accès autorisé';
     if (status === 'PENDING') return 'Demande en attente';
-    if (status === 'REJECTED') return 'Demande rejetée';
     
     return 'Accès non demandé';
   }
