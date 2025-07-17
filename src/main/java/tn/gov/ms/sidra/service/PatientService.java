@@ -155,6 +155,37 @@ public class PatientService {
     }
 
     /**
+     * Crée un nouveau patient dans la structure actuelle en référençant un patient d'une autre structure
+     */
+    @Transactional
+    public PatientDto createPatientFromExternal(Long originalPatientId, User currentUser) {
+        log.info("Création d'un patient depuis externe - utilisateur: {}, patient original: {}", 
+                currentUser.getEmail(), originalPatientId);
+
+        // Vérifier que l'utilisateur a accès au patient original
+        Patient originalPatient = patientRepository.findById(originalPatientId)
+                .orElseThrow(() -> new BusinessException("Patient original non trouvé"));
+
+        // Vérifier l'accès
+        boolean hasAccess = patientAccessRepository.hasAccess(originalPatient, currentUser);
+        if (!hasAccess) {
+            throw new BusinessException("Vous n'avez pas accès à ce patient");
+        }
+
+        // Créer le nouveau patient
+        Patient newPatient = createOrGetPatient(
+                originalPatient.getNom(),
+                originalPatient.getPrenom(),
+                originalPatient.getDateNaissance(),
+                originalPatient.getGenre(),
+                currentUser,
+                originalPatientId
+        );
+
+        return patientMapper.toDto(newPatient);
+    }
+
+    /**
      * Crée ou récupère un patient existant
      */
     @Transactional
