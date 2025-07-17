@@ -93,6 +93,12 @@ import { UserRole } from '../../../../models/user.model';
                     <div class="formulaire-id">{{ formulaire.identifiantUnique }}</div>
                   </td>
                   <td>
+                    <div class="structure-info">
+                      <div class="structure-name">{{ formulaire.structure?.nom }}</div>
+                      <div class="structure-type">{{ formulaire.structure?.type }}</div>
+                    </div>
+                  </td>
+                  <td>
                     <div class="motif-consultation">
                       {{ getMotifConsultation(formulaire) }}
                     </div>
