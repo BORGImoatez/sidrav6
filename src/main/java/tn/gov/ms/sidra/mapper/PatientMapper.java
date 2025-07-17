@@ -9,7 +9,6 @@ import tn.gov.ms.sidra.entity.Structure;
 import tn.gov.ms.sidra.service.PatientDto;
 import tn.gov.ms.sidra.service.PatientListDto;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,7 +82,7 @@ public interface PatientMapper {
     }
 
     @Named("getLastFormulaireDate")
-    default LocalDate getLastFormulaireDate(List<Formulaire> formulaires) {
+    default String getLastFormulaireDate(List<Formulaire> formulaires) {
         if (formulaires == null || formulaires.isEmpty()) {
             return null;
         }

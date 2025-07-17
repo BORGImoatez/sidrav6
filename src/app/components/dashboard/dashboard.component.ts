@@ -86,15 +86,22 @@ import { User, UserRole } from '../../models/user.model';
           </div>
           <div class="card-body">
             <div class="actions-grid">
-              <a href="/formulaire" class="action-item">
+              <a href="/formulaire" class="action-item" *ngIf="!isExterne()">
                 <div class="action-icon">📝</div>
                 <div class="action-content">
                   <h4 class="action-title">Nouveau formulaire</h4>
                   <p class="action-description">Saisir les données d'un nouvel usager SPA</p>
                 </div>
               </a>
+              <a href="/offre-drogues/nouveau" class="action-item" *ngIf="isExterne()">
+                <div class="action-icon">📝</div>
+                <div class="action-content">
+                  <h4 class="action-title">Nouvelle saisie d’une offre de drogue</h4>
+                  <p class="action-description">Saisir les données de l'offre de drogue</p>
+                </div>
+              </a>
 
-              <a href="/mes-formulaires" class="action-item">
+              <a href="/mes-formulaires" class="action-item" *ngIf="!isExterne()">
                 <div class="action-icon">📋</div>
                 <div class="action-content">
                   <h4 class="action-title">Mes formulaires</h4>
@@ -146,7 +153,7 @@ import { User, UserRole } from '../../models/user.model';
         </div>
       </div>
 
-      <div class="info-section" *ngIf="!canAccessAdmin()">
+      <div class="info-section" *ngIf="!canAccessAdmin() && !isExterne()">
         <div class="info-card card">
           <div class="card-body">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
@@ -184,6 +191,45 @@ import { User, UserRole } from '../../models/user.model';
           </div>
         </div>
       </div>
+      <div class="info-section" *ngIf="!canAccessAdmin() && isExterne()">
+        <div class="info-card card">
+          <div class="card-body">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              Interface des offres de drogues
+            </h3>
+            <div class="guide-steps">
+              <div class="guide-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4 class="step-title">Visualiser les offres de drogues</h4>
+                  <p class="step-description">
+                    Listez toutes les offres de drogues que vous avez saisies dans votre structure.
+                  </p>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4 class="step-title">Comprendre les colonnes</h4>
+                  <p class="step-description">
+                    La colonne <strong>Cumul</strong> indique le total des saisies précédentes. La colonne <strong>Dernière saisie</strong> affiche la quantité saisie lors de la dernière opération.
+                  </p>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4 class="step-title">Ajouter une nouvelle saisie</h4>
+                  <p class="step-description">
+                    Cliquez sur le bouton <strong>Nouvelle saisie</strong> pour enregistrer une nouvelle quantité saisie.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   `,
   styles: [`
@@ -542,6 +588,9 @@ export class DashboardComponent implements OnInit {
         year: 'numeric'
       });
     }
+  }
+  isExterne(): boolean {
+    return this.authService.hasRole(UserRole.EXTERNE);
   }
 
   canAccessAdmin(): boolean {

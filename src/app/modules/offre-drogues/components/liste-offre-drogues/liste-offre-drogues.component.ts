@@ -14,7 +14,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-liste-offre-drogues',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule], 
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="liste-container">
       <div class="page-header">
@@ -113,73 +113,6 @@ Chart.register(...registerables);
           </div>
         </div>
       </div>
-
-      <!-- Graphiques -->
-      <div class="charts-section">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3 class="card-title">Évolution des saisies par mois de l'année {{ selectedYear }}</h3>
-            <div class="filter-controls">
-              <div class="year-filter">
-                <label class="form-label">Année</label>
-                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChartByYear()">
-                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="monthlyChart"></canvas>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Quantités saisies par substance pour l'année {{ selectedYear }}</h3>
-            <div class="filter-controls">
-              <div class="year-filter">
-                <label class="form-label">Année</label>
-                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChartByYear()">
-                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="substancesChart"></canvas>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Évolution mensuelle des substances pour {{ availableMonths[selectedMonth].label }} {{ selectedYear }}</h3>
-            <div class="filter-controls">
-              <div class="year-filter">
-                <label class="form-label">Année</label>
-                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterMonthlySubstancesChart()">
-                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
-                </select>
-              </div>
-              <div class="month-filter">
-                <label class="form-label">Mois</label>
-                <select class="form-select" [(ngModel)]="selectedMonth" (change)="filterMonthlySubstancesChart()">
-                  <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="monthlySubstancesChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Tableau des données -->
       <div class="data-table-container card">
         <div class="card-header">
@@ -261,6 +194,55 @@ Chart.register(...registerables);
         </div>
       </div>
 
+      <!-- Graphiques -->
+      <div class="charts-section">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Évolution des saisies par mois de l'année {{ selectedYear }}</h3>
+            <div class="filter-controls">
+              <div class="year-filter">
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChartByYear()">
+                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+ 
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Évolution mensuelle des substances pour {{ availableMonths[selectedMonth].label }} {{ selectedYear }}</h3>
+            <div class="filter-controls">
+              <div class="year-filter">
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterMonthlySubstancesChart()">
+                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+              <div class="month-filter">
+                <label class="form-label">Mois</label>
+                <select class="form-select" [(ngModel)]="selectedMonth" (change)="filterMonthlySubstancesChart()">
+                  <option *ngFor="let month of availableMonths" [value]="month.value">{{ month.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlySubstancesChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  
       <!-- Modal de confirmation de suppression -->
       <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
         <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
@@ -643,7 +625,7 @@ export class ListeOffreDroguesComponent implements OnInit {
   endDate = '';
   selectedPeriod = '';
   selectedMonth = new Date().getMonth();
-  
+
   // Propriétés pour les graphiques
   monthlyChart: Chart | null = null;
   substancesChart: Chart | null = null;
@@ -776,7 +758,7 @@ export class ListeOffreDroguesComponent implements OnInit {
     // Récupérer les données mensuelles des substances
     this.offreDroguesService.getMonthlySubstancesData(this.selectedYear, this.selectedMonth).subscribe(data => {
       const labels = data.map(item => item.day);
-      
+
       // Créer un dataset pour chaque substance
       const datasets = [
         {
@@ -911,8 +893,8 @@ export class ListeOffreDroguesComponent implements OnInit {
 
   private prepareMonthlyData(year: number): { labels: string[], data: number[] } {
     // Créer un tableau pour chaque mois de l'année en cours
-    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
     const monthlyCounts = new Array(12).fill(0);
 
     // Compter les saisies par mois pour l'année sélectionnée

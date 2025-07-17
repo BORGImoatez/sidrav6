@@ -14,7 +14,7 @@ import java.util.List;
 public class FormulaireDto {
     private Long id;
     private String identifiantUnique;
-    private LocalDate dateConsultation;
+    private String dateConsultation;
     private PatientDto patient;
     private UtilisateurDto utilisateur;
     private StructureDto structure;

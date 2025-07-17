@@ -75,7 +75,7 @@ import { UserRole } from '../../../../models/user.model';
                 <tr>
                   <th>Date de consultation</th>
                   <th>ID Formulaire</th>
-                  <th>Motif de consultation</th>
+                  <th>Motif de consultation antérieur</th>
                   <th>Substance consommée en cours</th>
                   <th>Conduite à tenir</th>
                   <th>Actions</th>
@@ -447,52 +447,58 @@ calculateAge(dateNaissance: string): number {
 
   return age;
 }
-
-getSubstancePrincipale(formulaire: any): string {
-  // Extraire la substance principale du JSON
-  try {
-    if (!formulaire || !formulaire.substancePrincipale) {
-      return 'Non renseignée';
-    }
-
-    const substancePrincipale = typeof formulaire.substancePrincipale === 'string'
-        ? JSON.parse(formulaire.substancePrincipale)
-        : formulaire.substancePrincipale;
-
-    // Logique pour déterminer la substance principale
-    // Parcourir les propriétés et retourner la première qui est true
-    const substances = {
-      'cannabis': 'Cannabis',
-      'heroine': 'Héroïne',
-      'cocaine': 'Cocaïne',
-      'ecstasy': 'Ecstasy',
-      'amphetamines': 'Amphétamines',
-      'lsd': 'LSD',
-      'opium': 'Opium',
-      'morphiniques': 'Morphiniques',
-      'hypnotiques': 'Hypnotiques',
-      'produitsInhaler': 'Produits à inhaler',
-      'pregabaline': 'Prégabaline',
-      'ketamines': 'Kétamine'
-    };
-
-    for (const [key, label] of Object.entries(substances)) {
-      if (substancePrincipale[key]) {
-        return label;
+  getSubstancePrincipale(formulaire: any): string[] {
+    try {
+      if (!formulaire || !formulaire.droguesActuelles) {
+        return ['Non renseigné'];
       }
-    }
 
-    // Vérifier s'il y a une substance "autre" avec précision
-    if (substancePrincipale.autre && substancePrincipale.autrePrecision) {
-      return substancePrincipale.autrePrecision;
-    }
+      const drogues = typeof formulaire.droguesActuelles === 'string'
+          ? JSON.parse(formulaire.droguesActuelles)
+          : formulaire.droguesActuelles;
 
-    return 'Non spécifiée';
-  } catch (error) {
-    console.error('Erreur lors de l\'extraction de la substance principale:', error);
-    return 'Erreur de lecture';
+      const substances = {
+        'tabac': 'Tabac',
+        'alcool': 'Alcool',
+        'cannabis': 'Cannabis',
+        'heroine': 'Héroïne',
+        'cocaine': 'Cocaïne',
+        'ecstasy': 'Ecstasy',
+        'amphetamines': 'Amphétamines',
+        'lsd': 'LSD',
+        'opium': 'Opium',
+        'morphiniques': 'Morphiniques',
+        'hypnotiques': 'Hypnotiques',
+        'produitsInhaler': 'Produits à inhaler',
+        'pregabaline': 'Prégabaline',
+        'ketamines': 'Kétamine'
+      };
+
+      const result: string[] = [];
+
+      for (const [key, label] of Object.entries(substances)) {
+        if (drogues[key]) {
+          // Ajouter précision si disponible
+          if (drogues[`${key}Precision`]) {
+            result.push(`${label} (${drogues[`${key}Precision`]})`);
+          } else {
+            result.push(label);
+          }
+        }
+      }
+
+      // Vérifier la substance "autre"
+      if (drogues.autre && drogues.autrePrecision) {
+        result.push(drogues.autrePrecision);
+      }
+
+      return result.length > 0 ? result : ['Non spécifiée'];
+    } catch (error) {
+      console.error('Erreur lors de l\'extraction des substances consommées:', error);
+      return ['Erreur de lecture'];
+    }
   }
-}
+
 
 getMotifConsultation(formulaire: any): string {
   try {

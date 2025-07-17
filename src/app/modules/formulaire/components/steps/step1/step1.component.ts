@@ -83,7 +83,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                 </div>
               </div>
 
-              <!-- 1.a) Si ONG, préciser 
+              <!-- 1.a) Si ONG, préciser -->
               <div class="form-group sub-field" *ngIf="localData.secteur === 'ONG'">
                 <label class="form-label required">1.a) Si ONG, préciser</label>
                 <select
@@ -106,7 +106,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   La précision ONG est requise
                 </div>
               </div>
--->
+
               <!-- 2) Ministère -->
               <div class="form-group" *ngIf="localData.secteur === 'PUBLIC'">
                 <label class="form-label">2) Ministère</label>
@@ -115,8 +115,9 @@ import { CountryService, Country } from '../../../../../services/country.service
                     class="form-input"
                     [(ngModel)]="localData.ministere"
                     name="ministere"
-                    placeholder="Nom de la ministere"
-                      [disabled]="!!userStructureInfo?.hasStructure"
+                    placeholder="Nom de la structure"
+                    [disabled]="!!userStructureInfo?.hasStructure"
+
                 >
                 
               </div>
@@ -155,7 +156,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                 <input
                     type="text"
                     class="form-input"
-                     name="nom"
+                    name="nom"
                     placeholder="Nom de famille"
                     (input)="onFieldChange()"
                 >
@@ -202,7 +203,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                         type="radio"
                         name="genre"
                         value="HOMME"
-                        [(ngModel)]="localData.genre"
+                        [(ngModel)]="gender"
                         (change)="onFieldChange()"
                     >
                     <span class="radio-text">1. Homme</span>
@@ -212,7 +213,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                         type="radio"
                         name="genre"
                         value="FEMME"
-                        [(ngModel)]="localData.genre"
+                        [(ngModel)]="gender"
                         (change)="onFieldChange()"
                     >
                     <span class="radio-text">2. Femme</span>
@@ -230,7 +231,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                     type="date"
                     class="form-input"
                     [class.error]="showValidationErrors && !isValidDateNaissance()"
-                    [(ngModel)]="localData.dateNaissance"
+                    [(ngModel)]="dateNaissancePatient"
                     name="dateNaissance"
                     placeholder="JJ-MM-AAAA (seule l'année est obligatoire)"
                     (input)="onFieldChange()"
@@ -394,7 +395,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'ADDICTOLOGIE'"
+                        [checked]="localData.cadreConsultation?.addictologie === true"
                         (change)="onCadreConsultationChange('ADDICTOLOGIE')"
                         name="cadreAddictologie"
                     >
@@ -402,7 +403,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   </label>
 
                   <!-- Sous-options pour addictologie -->
-                  <div class="sub-options" *ngIf="localData.cadreConsultationPrincipal === 'ADDICTOLOGIE'">
+                  <div class="sub-options" *ngIf="localData.cadreConsultation?.addictologie === true">
                     <label class="checkbox-label sub-label">
                       <input
                           type="checkbox"
@@ -434,7 +435,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'PSYCHIATRIE'"
+                        [checked]="localData.cadreConsultation?.psychiatrie === true"
                         (change)="onCadreConsultationChange('PSYCHIATRIE')"
                         name="cadrePsychiatrie"
                     >
@@ -444,7 +445,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'PSYCHOLOGIQUE'"
+                        [checked]="localData.cadreConsultation?.psychiatrie === true"
                         (change)="onCadreConsultationChange('PSYCHOLOGIQUE')"
                         name="cadrePsychologique"
                     >
@@ -454,7 +455,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'MEDECINE_GENERALE'"
+                        [checked]="localData.cadreConsultation?.medecineGenerale === true"
                         (change)="onCadreConsultationChange('MEDECINE_GENERALE')"
                         name="cadreMedecineGenerale"
                     >
@@ -464,7 +465,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'NEUROLOGIQUE'"
+                        [checked]="localData.cadreConsultation?.neurologique === true"
                         (change)="onCadreConsultationChange('NEUROLOGIQUE')"
                         name="cadreNeurologique"
                     >
@@ -474,7 +475,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'INFECTIEUX'"
+                        [checked]="localData.cadreConsultation?.infectieux === true"
                         (change)="onCadreConsultationChange('INFECTIEUX')"
                         name="cadreInfectieux"
                     >
@@ -484,7 +485,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'ESPACE_AMIS_JEUNES'"
+                        [checked]="localData.cadreConsultation?.espaceAmisJeunes === true"
                         (change)="onCadreConsultationChange('ESPACE_AMIS_JEUNES')"
                         name="cadreEspaceAmisJeunes"
                     >
@@ -494,7 +495,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'ECHANGE_MATERIEL'"
+                        [checked]="localData.cadreConsultation?.echangeMateriel === true"
                         (change)="onCadreConsultationChange('ECHANGE_MATERIEL')"
                         name="cadreEchangeMateriel"
                     >
@@ -504,7 +505,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'REHABILITATION'"
+                        [checked]="localData.cadreConsultation?.rehabilitation === true"
                         (change)="onCadreConsultationChange('REHABILITATION')"
                         name="cadreRehabilitation"
                     >
@@ -514,7 +515,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'URGENCE_MEDICALE'"
+                        [checked]="localData.cadreConsultation?.urgenceMedicale === true"
                         (change)="onCadreConsultationChange('URGENCE_MEDICALE')"
                         name="cadreUrgenceMedicale"
                     >
@@ -524,7 +525,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'URGENCE_CHIRURGICALE'"
+                        [checked]="localData.cadreConsultation?.urgenceChirurgicale === true"
                         (change)="onCadreConsultationChange('URGENCE_CHIRURGICALE')"
                         name="cadreUrgenceChirurgicale"
                     >
@@ -534,7 +535,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'DEPISTAGE'"
+                        [checked]="localData.cadreConsultation?.depistage === true"
                         (change)="onCadreConsultationChange('DEPISTAGE')"
                         name="cadreDepistage"
                     >
@@ -544,7 +545,7 @@ import { CountryService, Country } from '../../../../../services/country.service
                   <label class="checkbox-label">
                     <input
                         type="checkbox"
-                        [checked]="localData.cadreConsultationPrincipal === 'AUTRE'"
+                        [checked]="localData.cadreConsultation?.autre === true"
                         (change)="onCadreConsultationChange('AUTRE')"
                         name="cadreAutre"
                     >
@@ -2023,9 +2024,9 @@ export class Step1Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
-  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
+  showValidationErrors = false;
 
   userStructureInfo: UserStructureInfo | null = null;
   isLoading = true;
@@ -2049,7 +2050,7 @@ export class Step1Component implements OnInit, OnChanges {
   // Données de référence
   selectedCountry: Country | null = null;
 
-   gouvernorats: Gouvernorat[] = [];
+  gouvernorats: Gouvernorat[] = [];
 
 
   constructor(
@@ -2087,25 +2088,19 @@ export class Step1Component implements OnInit, OnChanges {
   ngOnChanges(): void {
     this.initializeData();
   }
-
-  formatToDateInput(value: string): string {
-    const date = new Date(value);
-    return date.toISOString().split('T')[0]; // extrait juste 'yyyy-MM-dd'
-  }
+gender!:string;
+  dateNaissancePatient!:Date | undefined;
   private initializeData(): void {
-
     this.localData = {
       ...this.data,
       cadreConsultation: this.data.cadreConsultation || {},
-      origineDemande: this.data.origineDemande || {},
-      dateNaissance:this.data.patient?.dateNaissance,
-
+      origineDemande: this.data.origineDemande || {}
     };
-    const validGenres = ['HOMME', 'FEMME'] as const;
-    const genre = this.data.patient?.genre;
-    this.localData.genre = validGenres.includes(genre as any) ? genre as 'HOMME' | 'FEMME' : undefined;
+    if(this.localData.patient?.genre){
+      this.gender=this.localData.patient?.genre;
 
-    console.log(this.data);
+    }
+    this.dateNaissancePatient=this.localData.patient?.dateNaissance;
     this.validateStep();
   }
 
@@ -2206,7 +2201,6 @@ export class Step1Component implements OnInit, OnChanges {
   }
 
   private preFillUserData(): void {
-    console.log(this.userStructureInfo);
     if (this.userStructureInfo && this.userStructureInfo.hasStructure) {
       // Préremplir le secteur en fonction du type de structure
       if (this.userStructureInfo.typeStructure === TypeStructure.PUBLIQUE) {
@@ -2233,12 +2227,19 @@ export class Step1Component implements OnInit, OnChanges {
   }
 
   onFieldChange(): void {
-    this.dataChange.emit(this.localData);
+    if(this.gender=='HOMME'){
+      this.localData.genre='HOMME';
+    }
+    else {
+      this.localData.genre='FEMME';
+
+    }
+     this.dataChange.emit(this.localData);
     this.validateStep();
 
     // Si le gouvernorat change, mettre à jour les délégations
     if (this.localData.gouvernoratResidence) {
-       this.loadDelegations(+this.localData.gouvernoratResidence);
+      this.loadDelegations(+this.localData.gouvernoratResidence);
     } else {
       this.delegations = [];
     }
@@ -2247,7 +2248,7 @@ export class Step1Component implements OnInit, OnChanges {
     this.delegationService.getGouvernorat().subscribe({
       next: (governorat) => {
         console.log(governorat);
-      this.gouvernorats = governorat;
+        this.gouvernorats = governorat;
       },
       error: (error) => {
         console.error('Erreur lors du chargement des délégations:', error);
@@ -2387,10 +2388,9 @@ export class Step1Component implements OnInit, OnChanges {
   }
 
   private validateStep(): void {
-    // Liste des champs obligatoires
     const required = [
-      'secteur', 'structure', 'gouvernoratStructure', 'dateConsultation',
-      'genre', 'dateNaissance', 'nationalite', 'residence'
+      'dateConsultation', 'genre',
+      'nationalite', 'residence'
     ];
 
     // Vérifier que l'année de naissance est présente
@@ -2399,87 +2399,96 @@ export class Step1Component implements OnInit, OnChanges {
       return;
     }
 
-    // Vérifier les champs obligatoires
-    let isValid = required.every(field => {
-      const value = (this.localData as any)[field];
-      const isFieldValid = value !== undefined && value !== null && value !== '';
-      
-      // Si le champ n'est pas valide et que showValidationErrors est true, on affiche l'erreur
-      if (this.showValidationErrors && !isFieldValid) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
-      
-      return isFieldValid;
-    });
-
-    // Vérifier les champs conditionnels
-    if (this.localData.secteur === 'ONG' && !this.localData.ongPrecision) {
-      isValid = false;
+    // Check conditional required fields
+    if (this.localData.secteur === 'ONG') {
+      required.push('ongPrecision');
     }
 
     if (this.localData.residence === 'TUNISIE') {
-      if (!this.localData.gouvernoratResidence || !this.localData.delegationResidence) {
-        isValid = false;
-        
-        // Si showValidationErrors est true, on affiche l'erreur
-        if (this.showValidationErrors) {
-          // Logique pour afficher l'erreur (peut être implémentée dans le template)
-        }
-      }
-    } else if (this.localData.residence === 'ETRANGER') {
-      if (!this.localData.paysResidence) {
-        isValid = false;
-        
-        // Si showValidationErrors est true, on affiche l'erreur
-        if (this.showValidationErrors) {
-          // Logique pour afficher l'erreur (peut être implémentée dans le template)
-        }
+      required.push('gouvernoratResidence');
+    }
+
+    if (this.localData.residence === 'ETRANGER') {
+      required.push('paysResidence');
+    }
+
+    if (this.localData.cadreConsultationPrincipal === 'AUTRE') {
+      if (!this.localData.cadreConsultation?.autrePrecision) {
+        this.validationChange.emit(false);
+        return;
       }
     }
 
-    if (!this.localData.cadreConsultationPrincipal) {
-      isValid = false;
+    if (this.localData.situationFamiliale === 'AUTRE' && !this.localData.situationFamilialeAutre) {
+      this.validationChange.emit(false);
+      return;
     }
 
-    if (!this.localData.situationFamiliale) {
-      isValid = false;
+    if (this.localData.logement30Jours === 'AUTRE' && !this.localData.logement30JoursAutre) {
+      this.validationChange.emit(false);
+      return;
     }
 
-    if (!this.localData.logement30Jours) {
-      isValid = false;
+    if (this.localData.origineDemande?.autre === true && !this.localData.origineDemande?.autrePrecision) {
+      this.validationChange.emit(false);
+      return;
     }
 
-    if (!this.localData.natureLogement) {
-      isValid = false;
-    }
+    if (this.localData.consultationAnterieure === true) {
+      if (!this.localData.dateConsultationAnterieure || !this.localData.motifConsultationAnterieure) {
+        this.validationChange.emit(false);
+        return;
+      }
 
-    if (!this.localData.profession) {
-      isValid = false;
-    }
+      if (this.localData.motifConsultationAnterieure === 'RECIDIVES' && !this.localData.causeRecidive) {
+        this.validationChange.emit(false);
+        return;
+      }
 
-    if (!this.localData.niveauScolaire) {
-      isValid = false;
-    }
-
-    // Vérifier les champs conditionnels pour le cadre de consultation
-    if (this.localData.cadreConsultation?.autre && !this.localData.cadreConsultation?.autrePrecision) {
-      isValid = false;
-      
-      // Si showValidationErrors est true, on affiche l'erreur
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+      if (this.localData.motifConsultationAnterieure === 'SEVRAGE' && !this.localData.causeEchecSevrage) {
+        this.validationChange.emit(false);
+        return;
       }
     }
 
-    // Vérifier les champs conditionnels pour l'origine de la demande
-    if (this.localData.origineDemande?.autre && !this.localData.origineDemande?.autrePrecision) {
-      isValid = false;
-      
-      // Si showValidationErrors est true, on affiche l'erreur
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
+    if (this.localData.activiteSportive === true) {
+      if (!this.localData.activiteSportiveFrequence || !this.localData.activiteSportiveType) {
+        this.validationChange.emit(false);
+        return;
+      }
+
+      if (this.localData.activiteSportiveType === 'COMPETITION' && this.localData.dopage === null) {
+        this.validationChange.emit(false);
+        return;
       }
     }
+
+    // Validation de la date de naissance (seule l'année est obligatoire)
+    if (!this.isValidDateNaissance()) {
+      this.validationChange.emit(false);
+      return;
+    }
+
+    // Validation du motif de la consultation antérieure si "Autre" est sélectionné
+    if (this.localData.consultationAnterieure === true &&
+        this.localData.motifConsultationAnterieure === 'Autre' &&
+        !this.localData.motifConsultationAnterieurePrecision) {
+      this.validationChange.emit(false);
+      return;
+    }
+
+    // Validation de la cause de récidive si "Rechute" est sélectionné
+    if (this.localData.consultationAnterieure === true &&
+        this.localData.motifConsultationAnterieure === 'Rechute' &&
+        !this.localData.causeRecidive) {
+      this.validationChange.emit(false);
+      return;
+    }
+
+    const isValid = required.every(field => {
+      const value = (this.localData as any)[field];
+      return value !== undefined && value !== null && value !== '';
+    });
 
     this.validationChange.emit(isValid);
   }
@@ -2496,4 +2505,6 @@ export class Step1Component implements OnInit, OnChanges {
     const dateString = String(this.localData.dateNaissance);
     return /\d{4}/.test(dateString);
   }
+  // Add a method to trigger validation
+
 }

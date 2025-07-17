@@ -139,20 +139,17 @@ public class OffreDroguesController {
         long count = offreDroguesService.getCountByUser(currentUser);
         return ResponseEntity.ok(count);
     }
-}
-    /**
-     * Récupère les données mensuelles des substances pour un mois et une année spécifiques
-     */
     @GetMapping("/monthly-substances")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN_STRUCTURE', 'UTILISATEUR', 'EXTERNE')")
     public ResponseEntity<List<MonthlySubstancesDto>> getMonthlySubstancesData(
             @RequestParam int year,
             @RequestParam int month,
             @AuthenticationPrincipal User currentUser) {
-        
-        log.info("Récupération des données mensuelles des substances pour {}/{} par l'utilisateur: {}", 
+
+        log.info("Récupération des données mensuelles des substances pour {}/{} par l'utilisateur: {}",
                 month + 1, year, currentUser.getEmail());
-        
+
         List<MonthlySubstancesDto> data = offreDroguesService.getMonthlySubstancesData(year, month, currentUser);
         return ResponseEntity.ok(data);
     }
+}

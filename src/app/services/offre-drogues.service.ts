@@ -304,14 +304,14 @@ export class OffreDroguesService {
   getDetailedDataForYear(year: number): Observable<any[]> {
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
-    
+
     return this.getByPeriod(startDate, endDate).pipe(
-      map(data => {
-        // Convertir les données en format détaillé pour les graphiques
-        return data.map(item => {
-          return this.getById(item.id).toPromise();
-        });
-      })
+        map(data => {
+          // Convertir les données en format détaillé pour les graphiques
+          return data.map(item => {
+            return this.getById(item.id).toPromise();
+          });
+        })
     );
   }
 

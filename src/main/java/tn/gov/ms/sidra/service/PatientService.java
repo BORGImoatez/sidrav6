@@ -100,24 +100,24 @@ public class PatientService {
                 prenom, nom, dateNaissance, currentUser.getEmail());
 
         // Vérifier si le patient existe déjà
-        if (patientRepository.existsByNomAndPrenomAndDateNaissance(nom, prenom, dateNaissance)) {
-            log.info("Patient existant trouvé: {} {} (né le {})", prenom, nom, dateNaissance);
-            // Récupérer tous les patients avec ce nom, prénom et date de naissance
-            List<Patient> patients = patientRepository.findAll().stream()
-                    .filter(p -> p.getNom().equals(nom) && p.getPrenom().equals(prenom) && p.getDateNaissance().equals(dateNaissance))
-                    .collect(Collectors.toList());
-
-            // Si l'utilisateur n'est pas SUPER_ADMIN, filtrer par structure
-            if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
-                patients = patients.stream()
-                        .filter(p -> p.getStructure().getId().equals(currentUser.getStructure().getId()))
-                        .toList();
-            }
-
-            if (!patients.isEmpty()) {
-                return patients.get(0);
-            }
-        }
+//        if (patientRepository.existsByNomAndPrenomAndDateNaissance(nom, prenom, dateNaissance)) {
+//            log.info("Patient existant trouvé: {} {} (né le {})", prenom, nom, dateNaissance);
+//            // Récupérer tous les patients avec ce nom, prénom et date de naissance
+//            List<Patient> patients = patientRepository.findAll().stream()
+//                    .filter(p -> p.getNom().equals(nom) && p.getPrenom().equals(prenom) && p.getDateNaissance().equals(dateNaissance))
+//                    .collect(Collectors.toList());
+//
+//            // Si l'utilisateur n'est pas SUPER_ADMIN, filtrer par structure
+//            if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+//                patients = patients.stream()
+//                        .filter(p -> p.getStructure().getId().equals(currentUser.getStructure().getId()))
+//                        .toList();
+//            }
+//
+//            if (!patients.isEmpty()) {
+//                return patients.get(0);
+//            }
+//        }
 
         // Créer un nouveau patient
         Patient patient = new Patient();

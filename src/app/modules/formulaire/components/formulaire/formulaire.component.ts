@@ -491,7 +491,6 @@ export class FormulaireComponent implements OnInit {
   currentStep = 1;
   totalSteps = 6;
   isSaving = false;
-  showValidationErrors = false;
   isEditMode = false;
   formulaireId: number | null = null;
   patientId: number | null = null;
@@ -654,13 +653,13 @@ export class FormulaireComponent implements OnInit {
       formData.tentativeSevrageDetails = parseJsonField(apiData.tentativeSevrageDetails);
 
       // Conversion des dates
-     // if (apiData.dateConsultation && typeof apiData.dateConsultation === 'string') {
-       // formData.dateConsultation = new Date(apiData.dateConsultation);
-      //}
+      if (apiData.dateConsultation && typeof apiData.dateConsultation === 'string') {
+        formData.dateConsultation = new Date(apiData.dateConsultation);
+      }
 
-      // if (apiData.dateNaissance && typeof apiData.dateNaissance === 'string') {
-      //   formData.dateNaissance = new Date(apiData.dateNaissance);
-      // }
+      if (apiData.dateNaissance && typeof apiData.dateNaissance === 'string') {
+        formData.dateNaissance = new Date(apiData.dateNaissance);
+      }
 
       console.log('Données formulaire après conversion:', formData);
     } catch (error) {
@@ -786,29 +785,18 @@ export class FormulaireComponent implements OnInit {
   nextStep(): void {
     if (this.isCurrentStepValid() && this.currentStep < this.totalSteps) {
       // Mark current step as completed
-      this.showValidationErrors = false;
       const currentStepObj = this.steps.find(s => s.id === this.currentStep);
       if (currentStepObj) {
         currentStepObj.isCompleted = true;
       }
 
       this.currentStep++;
-    } else {
-      // Afficher les erreurs de validation
-      this.showValidationErrors = true;
-      
-      // Propager l'état de validation aux composants enfants
-      const currentStepComponent = this.getCurrentStepComponent();
-      if (currentStepComponent) {
-        currentStepComponent.showValidationErrors = true;
-      }
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
-      this.showValidationErrors = false;
     }
   }
 
@@ -828,13 +816,6 @@ export class FormulaireComponent implements OnInit {
 
   async submitForm(): Promise<void> {
     if (!this.isFormValid() || this.isSaving) {
-      this.showValidationErrors = true;
-      
-      // Propager l'état de validation aux composants enfants
-      const currentStepComponent = this.getCurrentStepComponent();
-      if (currentStepComponent) {
-        currentStepComponent.showValidationErrors = true;
-      }
       return;
     }
 
@@ -893,15 +874,16 @@ export class FormulaireComponent implements OnInit {
   }
 
   private prepareFormDataForApi(): any {
-    // Create a copy to avoid modifying the original
+    // Convertir les objets en chaînes JSON pour l'API
+    // Créer une copie pour éviter de modifier l'original
     const formData: any = JSON.parse(JSON.stringify(this.formulaireData));
 
-    // Add patient ID if available
+    // Ajouter l'ID du patient si disponible
     if (this.patientId) {
       formData.patientId = this.patientId;
     }
 
-    // Format dates
+    // S'assurer que les dates sont au bon format
     if (formData.dateNaissance && formData.dateNaissance instanceof Date) {
       formData.dateNaissance = this.formatDate(formData.dateNaissance);
     }
@@ -910,24 +892,166 @@ export class FormulaireComponent implements OnInit {
       formData.dateConsultation = this.formatDate(formData.dateConsultation);
     }
 
-    // Ensure all JSON fields are objects (not strings)
-    formData.cadreConsultation = formData.cadreConsultation || {};
-    formData.origineDemande = formData.origineDemande || {};
-    formData.typeAlcool = formData.typeAlcool || {};
-    formData.entourageSpa = formData.entourageSpa || {};
-    formData.typeSpaEntourage = formData.typeSpaEntourage || {};
-    formData.droguesActuelles = formData.droguesActuelles || {};
-    formData.substanceInitiation = formData.substanceInitiation || {};
-    formData.substancePrincipale = formData.substancePrincipale || {};
-    formData.voieAdministration = formData.voieAdministration || {};
-    formData.testVih = formData.testVih || {};
-    formData.testVhc = formData.testVhc || {};
-    formData.testVhb = formData.testVhb || {};
-    formData.testSyphilis = formData.testSyphilis || {};
-    formData.tentativeSevrageDetails = formData.tentativeSevrageDetails || {};
+    // Convertir les objets en chaînes JSON
+   // if (formData.cadreConsultation) {
+      // Vérifier si c'est déjà une chaîne
+    // if (typeof formData.cadreConsultation !== 'string') {
 
+    //   formData.cadreConsultation = JSON.stringify(formData.cadreConsultation || {});
+    // } else if (formData.cadreConsultation === '') {
+    //  formData.cadreConsultation = '{}';
+    //  }
+    // }
+    //else {
+    //  formData.cadreConsultation = '{}';
+    //}
+/*
+    if (formData.origineDemande) {
+      if (typeof formData.origineDemande !== 'string') {
+        formData.origineDemande = JSON.stringify(formData.origineDemande || {});
+      } else if (formData.origineDemande === '') {
+        formData.origineDemande = '{}';
+      }
+    }
+    else {
+      formData.origineDemande = '{}';
+    }
+
+    if (formData.typeAlcool) {
+      if (typeof formData.typeAlcool !== 'string') {
+        formData.typeAlcool = JSON.stringify(formData.typeAlcool || {});
+      } else if (formData.typeAlcool === '') {
+        formData.typeAlcool = '{}';
+      }
+    }
+    else {
+      formData.typeAlcool = '{}';
+    }
+
+    if (formData.entourageSpa) {
+      if (typeof formData.entourageSpa !== 'string') {
+        formData.entourageSpa = JSON.stringify(formData.entourageSpa || {});
+      } else if (formData.entourageSpa === '') {
+        formData.entourageSpa = '{}';
+      }
+    }
+    else {
+      formData.entourageSpa = '{}';
+    }
+
+    if (formData.typeSpaEntourage) {
+      if (typeof formData.typeSpaEntourage !== 'string') {
+        formData.typeSpaEntourage = JSON.stringify(formData.typeSpaEntourage || {});
+      } else if (formData.typeSpaEntourage === '') {
+        formData.typeSpaEntourage = '{}';
+      }
+    }
+    else {
+      formData.typeSpaEntourage = '{}';
+    }
+
+    if (formData.droguesActuelles) {
+      if (typeof formData.droguesActuelles !== 'string') {
+        formData.droguesActuelles = JSON.stringify(formData.droguesActuelles || {});
+      } else if (formData.droguesActuelles === '') {
+        formData.droguesActuelles = '{}';
+      }
+    }
+    else {
+      formData.droguesActuelles = '{}';
+    }
+
+    if (formData.substanceInitiation) {
+      if (typeof formData.substanceInitiation !== 'string') {
+        formData.substanceInitiation = JSON.stringify(formData.substanceInitiation || {});
+      } else if (formData.substanceInitiation === '') {
+        formData.substanceInitiation = '{}';
+      }
+    }
+    else {
+      formData.substanceInitiation = '{}';
+    }
+
+    if (formData.substancePrincipale) {
+      if (typeof formData.substancePrincipale !== 'string') {
+        formData.substancePrincipale = JSON.stringify(formData.substancePrincipale || {});
+      } else if (formData.substancePrincipale === '') {
+        formData.substancePrincipale = '{}';
+      }
+    }
+    else {
+      formData.substancePrincipale = '{}';
+    }
+
+    if (formData.voieAdministration) {
+      if (typeof formData.voieAdministration !== 'string') {
+        formData.voieAdministration = JSON.stringify(formData.voieAdministration || {});
+      } else if (formData.voieAdministration === '') {
+        formData.voieAdministration = '{}';
+      }
+    }
+    else {
+      formData.voieAdministration = '{}';
+    }
+
+    if (formData.testVih) {
+      if (typeof formData.testVih !== 'string') {
+        formData.testVih = JSON.stringify(formData.testVih || {});
+      } else if (formData.testVih === '') {
+        formData.testVih = '{}';
+      }
+    }
+    else {
+      formData.testVih = '{}';
+    }
+
+    if (formData.testVhc) {
+      if (typeof formData.testVhc !== 'string') {
+        formData.testVhc = JSON.stringify(formData.testVhc || {});
+      } else if (formData.testVhc === '') {
+        formData.testVhc = '{}';
+      }
+    }
+    else {
+      formData.testVhc = '{}';
+    }
+
+    if (formData.testVhb) {
+      if (typeof formData.testVhb !== 'string') {
+        formData.testVhb = JSON.stringify(formData.testVhb || {});
+      } else if (formData.testVhb === '') {
+        formData.testVhb = '{}';
+      }
+    }
+    else {
+      formData.testVhb = '{}';
+    }
+
+    if (formData.testSyphilis) {
+      if (typeof formData.testSyphilis !== 'string') {
+        formData.testSyphilis = JSON.stringify(formData.testSyphilis || {});
+      } else if (formData.testSyphilis === '') {
+        formData.testSyphilis = '{}';
+      }
+    }
+    else {
+      formData.testSyphilis = '{}';
+    }
+
+    if (formData.tentativeSevrageDetails) {
+      if (typeof formData.tentativeSevrageDetails !== 'string') {
+        formData.tentativeSevrageDetails = JSON.stringify(formData.tentativeSevrageDetails || {});
+      } else if (formData.tentativeSevrageDetails === '') {
+        formData.tentativeSevrageDetails = '{}';
+      }
+    }
+    else {
+      formData.tentativeSevrageDetails = '{}';
+    }
+*/
     return formData;
   }
+
   // Formater une date au format ISO (YYYY-MM-DD)
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
@@ -962,12 +1086,5 @@ export class FormulaireComponent implements OnInit {
 
   getCurrentDateTimeFormatted(): string {
     return this.datePipe.transform(new Date(), 'dd/MM/yyyy HH:mm') || '';
-  }
-  
-  // Méthode pour obtenir le composant de l'étape actuelle
-  private getCurrentStepComponent(): any {
-    // Cette méthode est une approximation, car Angular ne fournit pas d'accès direct aux composants enfants
-    // Dans une implémentation réelle, vous pourriez utiliser @ViewChild ou un service partagé
-    return null;
   }
 }

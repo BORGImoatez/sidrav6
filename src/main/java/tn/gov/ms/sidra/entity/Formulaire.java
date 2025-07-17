@@ -31,9 +31,9 @@ public class Formulaire {
     @Column(name = "identifiant_unique", nullable = false, unique = true)
     private String identifiantUnique;
 
-    @NotNull(message = "La date de consultation est obligatoire")
-    @Column(name = "date_consultation", nullable = false)
-    private LocalDate dateConsultation;
+   // @NotNull(message = "La date de consultation est obligatoire")
+    @Column(name = "date_consultation", nullable = true)
+    private String dateConsultation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)

@@ -77,6 +77,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     boolean hasSuperAdminRole = userDetails.getAuthorities().stream()
                             .anyMatch(auth -> auth.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
+
+
                     if (!hasSuperAdminRole) {
                         System.err.println("User " + username + " attempted WebSocket connection without required role.");
                         return false; // ❌ Rejette la connexion

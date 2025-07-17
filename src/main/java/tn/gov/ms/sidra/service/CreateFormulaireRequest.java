@@ -28,7 +28,7 @@ public class CreateFormulaireRequest {
 
     // Informations formulaire
     @NotNull(message = "La date de consultation est obligatoire")
-    private LocalDate dateConsultation;
+    private String dateConsultation;
 
     @NotBlank(message = "Le secteur est obligatoire")
     private String secteur;

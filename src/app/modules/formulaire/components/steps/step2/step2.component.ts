@@ -637,9 +637,9 @@ export class Step2Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
-  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
+  showValidationErrors = false;
 
   ngOnInit(): void {
     this.initializeData();
@@ -703,11 +703,6 @@ export class Step2Component implements OnInit, OnChanges {
 
   private validateStep(): void {
     const required = ['consommationTabac', 'consommationAlcool'];
-
-    // Afficher les erreurs si showValidationErrors est true
-    if (this.showValidationErrors) {
-      // Logique pour afficher les erreurs (peut être implémentée dans le template)
-    }
 
     // Conditional required fields for tobacco
     if (this.localData.consommationTabac === 'FUMEUR' || this.localData.consommationTabac === 'EX_FUMEUR') {

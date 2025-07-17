@@ -275,7 +275,7 @@ import { FormulaireData } from '../../../models/formulaire.model';
               </div>
             </div>
 
-          
+
           </div>
         </form>
       </div>
@@ -471,9 +471,9 @@ export class Step5Component implements OnInit, OnChanges {
   @Input() data: Partial<FormulaireData> = {};
   @Output() dataChange = new EventEmitter<Partial<FormulaireData>>();
   @Output() validationChange = new EventEmitter<boolean>();
-  @Input() showValidationErrors = false;
 
   localData: Partial<FormulaireData> = {};
+  showValidationErrors = false;
 
   ngOnInit(): void {
     this.initializeData();
@@ -498,50 +498,11 @@ export class Step5Component implements OnInit, OnChanges {
   private validateStep(): void {
     let isValid = true;
 
-    // Vérifier si les comorbidités psychiatriques personnelles sont renseignées
-    if (this.localData.comorbiditePsychiatriquePersonnelle === undefined || 
-        this.localData.comorbiditePsychiatriquePersonnelle === null) {
-      isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
-    }
-
-    // Vérifier si les comorbidités somatiques personnelles sont renseignées
-    if (this.localData.comorbiditeSomatiquePersonnelle === undefined || 
-        this.localData.comorbiditeSomatiquePersonnelle === null) {
-      isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
-    }
-
-    // Vérifier si les comorbidités psychiatriques des partenaires sont renseignées
-    if (this.localData.comorbiditePsychiatriquePartenaire === undefined || 
-        this.localData.comorbiditePsychiatriquePartenaire === null) {
-      isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
-    }
-
-    // Vérifier si les comorbidités somatiques des partenaires sont renseignées
-    if (this.localData.comorbiditeSomatiquePartenaire === undefined || 
-        this.localData.comorbiditeSomatiquePartenaire === null) {
-      isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
-    }
-
     // Validation pour comorbidités psychiatriques personnelles
     if (this.localData.comorbiditePsychiatriquePersonnelle === true &&
         (!this.localData.comorbiditePsychiatriquePersonnellePrecision ||
             this.localData.comorbiditePsychiatriquePersonnellePrecision.trim() === '')) {
       isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
     }
 
     // Validation pour comorbidités somatiques personnelles
@@ -549,9 +510,6 @@ export class Step5Component implements OnInit, OnChanges {
         (!this.localData.comorbiditeSomatiquePersonnellePrecision ||
             this.localData.comorbiditeSomatiquePersonnellePrecision.trim() === '')) {
       isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
     }
 
     // Validation pour comorbidités psychiatriques des partenaires
@@ -559,9 +517,6 @@ export class Step5Component implements OnInit, OnChanges {
         (!this.localData.comorbiditePsychiatriquePartenairePrecision ||
             this.localData.comorbiditePsychiatriquePartenairePrecision.trim() === '')) {
       isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
     }
 
     // Validation pour comorbidités somatiques des partenaires
@@ -569,9 +524,6 @@ export class Step5Component implements OnInit, OnChanges {
         (!this.localData.comorbiditeSomatiquePartenairePrecision ||
             this.localData.comorbiditeSomatiquePartenairePrecision.trim() === '')) {
       isValid = false;
-      if (this.showValidationErrors) {
-        // Logique pour afficher l'erreur (peut être implémentée dans le template)
-      }
     }
 
     // Cette étape est généralement valide car la plupart des champs sont optionnels

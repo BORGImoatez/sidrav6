@@ -29,7 +29,7 @@ public class PatientDto {
     public static class FormulaireBrefDto {
         private Long id;
         private String identifiantUnique;
-        private LocalDate dateConsultation;
+        private String dateConsultation;
         private String motifConsultation;
         private String substancePrincipale;
         private String conduiteATenir;

@@ -573,7 +573,7 @@ Chart.register(...registerables);
       .detail-table td {
         padding: var(--spacing-2);
       }
-      
+
       .chart-container {
         height: 300px;
       }
@@ -612,7 +612,7 @@ export class DetailOffreDroguesComponent implements OnInit {
       next: (data) => {
         this.data = data;
         this.isLoading = false;
-        
+
         // Charger la dernière saisie pour comparaison
         this.loadLastEntry();
       },
@@ -630,7 +630,7 @@ export class DetailOffreDroguesComponent implements OnInit {
     this.offreDroguesService.getLastEntryBefore(this.data.dateSaisie, this.data.id).subscribe({
       next: (lastEntry) => {
         this.lastEntry = lastEntry;
-        
+
         // Créer le graphique de comparaison
         setTimeout(() => {
           this.createComparisonChart();
@@ -644,20 +644,20 @@ export class DetailOffreDroguesComponent implements OnInit {
 
   private createComparisonChart(): void {
     if (!this.data || !this.lastEntry) return;
-    
+
     const ctx = document.getElementById('comparisonChart') as HTMLCanvasElement;
     if (!ctx) return;
-    
+
     if (this.comparisonChart) {
       this.comparisonChart.destroy();
     }
-    
+
     // Préparer les données pour le graphique
     const substances = [
-      'Cannabis', 'Comprimés Tableau A', 'Ecstasy (comprimé)', 
+      'Cannabis', 'Comprimés Tableau A', 'Ecstasy (comprimé)',
       'Ecstasy (poudre)', 'Subutex', 'Cocaïne', 'Héroïne'
     ];
-    
+
     const currentData = [
       this.data.quantitesDrogues.cannabis || 0,
       this.data.quantitesDrogues.comprimesTableauA || 0,
@@ -667,7 +667,7 @@ export class DetailOffreDroguesComponent implements OnInit {
       this.data.quantitesDrogues.cocaine || 0,
       this.data.quantitesDrogues.heroine || 0
     ];
-    
+
     const lastData = [
       this.lastEntry.quantitesDrogues?.cannabis || 0,
       this.lastEntry.quantitesDrogues?.comprimesTableauA || 0,
@@ -677,7 +677,7 @@ export class DetailOffreDroguesComponent implements OnInit {
       this.lastEntry.quantitesDrogues?.cocaine || 0,
       this.lastEntry.quantitesDrogues?.heroine || 0
     ];
-    
+
     this.comparisonChart = new Chart(ctx, {
       type: 'bar',
       data: {

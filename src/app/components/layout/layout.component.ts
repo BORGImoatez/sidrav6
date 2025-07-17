@@ -76,7 +76,7 @@ import { User, UserRole } from '../../models/user.model';
             >
               <span class="nav-icon">📊</span>
               <span class="nav-label" *ngIf="!isSidebarCollapsed">
-                {{ isExterne() ? 'Mes indicateurs' : 'Offre de drogues' }}
+                {{ isExterne() ? 'Offre de drogues' : 'Offre de drogues' }}
               </span>
             </a>
           </div>
