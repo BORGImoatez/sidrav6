@@ -728,6 +728,7 @@ export class FormulaireComponent implements OnInit {
   private initializeFormData(): void {
     // Initialize with default values
     this.formulaireData = {
+      dateConsultation: new Date(),
       cadreConsultation: {},
       origineDemande: {},
       typeAlcool: {},
@@ -876,7 +877,7 @@ export class FormulaireComponent implements OnInit {
   private prepareFormDataForApi(): any {
     // Convertir les objets en chaînes JSON pour l'API
     // Créer une copie pour éviter de modifier l'original
-    const formData: any = JSON.parse(JSON.stringify(this.formulaireData));
+    const formData: any = { ...this.formulaireData };
 
     // Ajouter l'ID du patient si disponible
     if (this.patientId) {
@@ -884,12 +885,22 @@ export class FormulaireComponent implements OnInit {
     }
 
     // S'assurer que les dates sont au bon format
-    if (formData.dateNaissance && formData.dateNaissance instanceof Date) {
-      formData.dateNaissance = this.formatDate(formData.dateNaissance);
+    if (formData.dateNaissance) {
+      if (formData.dateNaissance instanceof Date) {
+        formData.dateNaissance = this.formatDate(formData.dateNaissance);
+      } else if (typeof formData.dateNaissance === 'string' && formData.dateNaissance.includes('T')) {
+        // Handle ISO date string
+        formData.dateNaissance = formData.dateNaissance.split('T')[0];
+      }
     }
 
-    if (formData.dateConsultation && formData.dateConsultation instanceof Date) {
-      formData.dateConsultation = this.formatDate(formData.dateConsultation);
+    if (formData.dateConsultation) {
+      if (formData.dateConsultation instanceof Date) {
+        formData.dateConsultation = this.formatDate(formData.dateConsultation);
+      } else if (typeof formData.dateConsultation === 'string' && formData.dateConsultation.includes('T')) {
+        // Handle ISO date string
+        formData.dateConsultation = formData.dateConsultation.split('T')[0];
+      }
     }
 
     // Convertir les objets en chaînes JSON
