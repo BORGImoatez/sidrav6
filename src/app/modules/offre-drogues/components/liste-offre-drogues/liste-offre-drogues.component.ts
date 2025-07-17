@@ -3,14 +3,18 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OffreDroguesService } from '../../../../services/offre-drogues.service';
+import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../../../services/auth.service';
 import { UserRole } from '../../../../models/user.model';
 import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
 
+// Enregistrer tous les composants Chart.js
+Chart.register(...registerables);
+
 @Component({
   selector: 'app-liste-offre-drogues',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule], 
   template: `
     <div class="liste-container">
       <div class="page-header">
@@ -105,6 +109,39 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
                   Filtrer
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphiques -->
+      <div class="charts-section">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Évolution des saisies par mois</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Quantités saisies par substance</h3>
+            <div class="filter-controls">
+              <div class="year-filter">
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChartByYear()">
+                  <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="substancesChart"></canvas>
             </div>
           </div>
         </div>
@@ -243,6 +280,39 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
     .liste-container {
       max-width: 1400px;
       margin: 0 auto;
+    }
+
+    .charts-section {
+      margin-bottom: var(--spacing-6);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-6);
+    }
+
+    .chart-container {
+      height: 400px;
+      position: relative;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: var(--spacing-4);
+      align-items: center;
+      margin-top: var(--spacing-2);
+    }
+
+    .year-filter {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .year-filter .form-select {
+      width: 120px;
+    }
+
+    .mb-4 {
+      margin-bottom: var(--spacing-4);
     }
 
     .page-header {
@@ -508,6 +578,14 @@ import {OffreDroguesListItem} from "../../../../models/offre-drogues.model";
         flex-direction: column;
         gap: var(--spacing-2);
       }
+
+      .charts-section {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
     }
   `]
 })
@@ -521,6 +599,13 @@ export class ListeOffreDroguesComponent implements OnInit {
   startDate = '';
   endDate = '';
   selectedPeriod = '';
+  
+  // Propriétés pour les graphiques
+  monthlyChart: Chart | null = null;
+  substancesChart: Chart | null = null;
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = [];
+  chartData: any[] = [];
 
   // États
   isLoading = false;
@@ -537,6 +622,7 @@ export class ListeOffreDroguesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.initializeYears();
   }
 
   private loadData(): void {
@@ -546,13 +632,203 @@ export class ListeOffreDroguesComponent implements OnInit {
       next: (data) => {
         this.data = data;
         this.filterData();
+        this.chartData = data;
         this.isLoading = false;
+        this.initializeCharts();
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données:', error);
         this.isLoading = false;
       }
     });
+  }
+
+  private initializeYears(): void {
+    const currentYear = new Date().getFullYear();
+    this.availableYears = [];
+    for (let year = currentYear; year >= currentYear - 5; year--) {
+      this.availableYears.push(year);
+    }
+  }
+
+  private initializeCharts(): void {
+    this.createMonthlyChart();
+    this.createSubstancesChart();
+  }
+
+  private createMonthlyChart(): void {
+    if (this.monthlyChart) {
+      this.monthlyChart.destroy();
+    }
+
+    const ctx = document.getElementById('monthlyChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    // Préparer les données par mois
+    const monthlyData = this.prepareMonthlyData();
+
+    this.monthlyChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: monthlyData.labels,
+        datasets: [{
+          label: 'Nombre de saisies',
+          data: monthlyData.data,
+          backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          },
+          legend: {
+            position: 'top',
+          }
+        }
+      }
+    });
+  }
+
+  private createSubstancesChart(): void {
+    if (this.substancesChart) {
+      this.substancesChart.destroy();
+    }
+
+    const ctx = document.getElementById('substancesChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    // Préparer les données par substance
+    const substancesData = this.prepareSubstancesData(this.selectedYear);
+
+    this.substancesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: substancesData.labels,
+        datasets: [{
+          label: 'Quantités saisies',
+          data: substancesData.data,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(199, 199, 199, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          },
+          legend: {
+            position: 'top',
+          }
+        }
+      }
+    });
+  }
+
+  private prepareMonthlyData(): { labels: string[], data: number[] } {
+    // Créer un tableau pour chaque mois de l'année en cours
+    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const currentYear = new Date().getFullYear();
+    const monthlyCounts = new Array(12).fill(0);
+
+    // Compter les saisies par mois pour l'année en cours
+    this.data.forEach(item => {
+      const date = new Date(item.dateSaisie);
+      if (date.getFullYear() === currentYear) {
+        monthlyCounts[date.getMonth()]++;
+      }
+    });
+
+    return {
+      labels: months,
+      data: monthlyCounts
+    };
+  }
+
+  private prepareSubstancesData(year: number): { labels: string[], data: number[] } {
+    // Définir les substances à afficher
+    const substances = [
+      { name: 'Cannabis (kg)', key: 'cannabis' },
+      { name: 'Comprimés Tableau A', key: 'comprimesTableauA' },
+      { name: 'Ecstasy (comprimé)', key: 'ecstasyComprime' },
+      { name: 'Ecstasy (poudre)', key: 'ecstasyPoudre' },
+      { name: 'Subutex', key: 'subutex' },
+      { name: 'Cocaïne (g)', key: 'cocaine' },
+      { name: 'Héroïne (g)', key: 'heroine' }
+    ];
+
+    // Filtrer les données par année
+    const filteredData = this.offreDroguesService.getDetailedDataForYear(year);
+
+    // Initialiser les totaux à zéro
+    const totals = substances.map(() => 0);
+
+    // Calculer les totaux pour chaque substance
+    filteredData.subscribe(data => {
+      data.forEach(item => {
+        substances.forEach((substance, index) => {
+          if (item.quantitesDrogues && item.quantitesDrogues[substance.key] !== null) {
+            totals[index] += item.quantitesDrogues[substance.key] || 0;
+          }
+        });
+      });
+
+      // Mettre à jour le graphique avec les nouvelles données
+      if (this.substancesChart) {
+        this.substancesChart.data.datasets[0].data = totals;
+        this.substancesChart.update();
+      }
+    });
+
+    return {
+      labels: substances.map(s => s.name),
+      data: totals
+    };
+  }
+
+  filterChartByYear(): void {
+    this.createSubstancesChart();
   }
 
   filterByCustomPeriod(): void {
@@ -566,7 +842,9 @@ export class ListeOffreDroguesComponent implements OnInit {
       next: (data) => {
         this.data = data;
         this.filterData();
+        this.chartData = data;
         this.isLoading = false;
+        this.initializeCharts();
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données par période:', error);

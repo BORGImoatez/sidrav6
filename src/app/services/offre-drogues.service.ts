@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import {environment} from "../../environments/environment";
 import {AuthService} from "./auth.service";
 
@@ -282,6 +283,23 @@ export class OffreDroguesService {
           console.error('Erreur lors du chargement des statistiques:', error);
           return throwError(() => error);
         })
+    );
+  }
+
+  /**
+   * Récupère les données détaillées pour une année spécifique
+   */
+  getDetailedDataForYear(year: number): Observable<any[]> {
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+    
+    return this.getByPeriod(startDate, endDate).pipe(
+      map(data => {
+        // Convertir les données en format détaillé pour les graphiques
+        return data.map(item => {
+          return this.getById(item.id).toPromise();
+        });
+      })
     );
   }
 

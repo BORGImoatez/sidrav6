@@ -2,10 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Chart, registerables } from 'chart.js';
 import { OffreDroguesService } from '../../../../services/offre-drogues.service';
 import { AuthService } from '../../../../services/auth.service';
 import { OffreDrogues } from '../../../../models/offre-drogues.model';
 import { UserRole } from '../../../../models/user.model';
+
+// Enregistrer tous les composants Chart.js
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-detail-offre-drogues',
@@ -77,6 +81,18 @@ import { UserRole } from '../../../../models/user.model';
                 <span class="info-label">Dernière modification</span>
                 <span class="info-value">{{ data.dateModification | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graphique comparatif -->
+        <div class="data-section card" *ngIf="lastEntry">
+          <div class="card-header">
+            <h3 class="section-title">Comparaison avec la dernière saisie</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="comparisonChart"></canvas>
             </div>
           </div>
         </div>
@@ -410,6 +426,12 @@ import { UserRole } from '../../../../models/user.model';
       gap: var(--spacing-6);
     }
 
+    .chart-container {
+      height: 400px;
+      position: relative;
+      margin-top: var(--spacing-4);
+    }
+
     .info-section,
     .data-section {
       margin-bottom: var(--spacing-6);
@@ -551,6 +573,10 @@ import { UserRole } from '../../../../models/user.model';
       .detail-table td {
         padding: var(--spacing-2);
       }
+      
+      .chart-container {
+        height: 300px;
+      }
     }
   `]
 })
@@ -559,6 +585,7 @@ export class DetailOffreDroguesComponent implements OnInit {
   isLoading = false;
   itemId: number | null = null;
   lastEntry: any = null;
+  comparisonChart: Chart | null = null;
 
   constructor(
       private router: Router,
@@ -585,6 +612,7 @@ export class DetailOffreDroguesComponent implements OnInit {
       next: (data) => {
         this.data = data;
         this.isLoading = false;
+        
         // Charger la dernière saisie pour comparaison
         this.loadLastEntry();
       },
@@ -602,11 +630,99 @@ export class DetailOffreDroguesComponent implements OnInit {
     this.offreDroguesService.getLastEntryBefore(this.data.dateSaisie, this.data.id).subscribe({
       next: (lastEntry) => {
         this.lastEntry = lastEntry;
+        
+        // Créer le graphique de comparaison
+        setTimeout(() => {
+          this.createComparisonChart();
+        }, 100);
       },
       error: (error) => {
         console.error('Erreur lors du chargement de la dernière saisie:', error);
       }
     });
+  }
+
+  private createComparisonChart(): void {
+    if (!this.data || !this.lastEntry) return;
+    
+    const ctx = document.getElementById('comparisonChart') as HTMLCanvasElement;
+    if (!ctx) return;
+    
+    if (this.comparisonChart) {
+      this.comparisonChart.destroy();
+    }
+    
+    // Préparer les données pour le graphique
+    const substances = [
+      'Cannabis', 'Comprimés Tableau A', 'Ecstasy (comprimé)', 
+      'Ecstasy (poudre)', 'Subutex', 'Cocaïne', 'Héroïne'
+    ];
+    
+    const currentData = [
+      this.data.quantitesDrogues.cannabis || 0,
+      this.data.quantitesDrogues.comprimesTableauA || 0,
+      this.data.quantitesDrogues.ecstasyComprime || 0,
+      this.data.quantitesDrogues.ecstasyPoudre || 0,
+      this.data.quantitesDrogues.subutex || 0,
+      this.data.quantitesDrogues.cocaine || 0,
+      this.data.quantitesDrogues.heroine || 0
+    ];
+    
+    const lastData = [
+      this.lastEntry.quantitesDrogues?.cannabis || 0,
+      this.lastEntry.quantitesDrogues?.comprimesTableauA || 0,
+      this.lastEntry.quantitesDrogues?.ecstasyComprime || 0,
+      this.lastEntry.quantitesDrogues?.ecstasyPoudre || 0,
+      this.lastEntry.quantitesDrogues?.subutex || 0,
+      this.lastEntry.quantitesDrogues?.cocaine || 0,
+      this.lastEntry.quantitesDrogues?.heroine || 0
+    ];
+    
+    this.comparisonChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: substances,
+        datasets: [
+          {
+            label: `Saisie actuelle (${this.formatDate(this.data.dateSaisie)})`,
+            data: currentData,
+            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+          },
+          {
+            label: `Dernière saisie (${this.formatDate(this.lastEntry.dateSaisie)})`,
+            data: lastData,
+            backgroundColor: 'rgba(107, 114, 128, 0.7)',
+            borderColor: 'rgba(107, 114, 128, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          },
+          legend: {
+            position: 'top',
+          }
+        }
+      }
+    });
+  }
+
+  private formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR');
   }
 
   getCumulativeValue(current: number | null, previous: number | null): string {
